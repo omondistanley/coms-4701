@@ -63,8 +63,16 @@ class MazeState:
 		#=======================================================================#
 		#*#*#*# TODO: Write your code to find the start index of the maze #*#*#*#
 		#=======================================================================#
-		
-		return (-1, -1)
+		maze = self.__arena
+		start = (-1, -1)
+		for i in range(len(maze)):
+			for j in range(len(maze[0])):
+				if maze[i][j] == "s":
+					start = (i, j)
+					print(start)
+					return start
+		print(start)
+		return start
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
 		#=================================#
@@ -77,8 +85,16 @@ class MazeState:
 		#======================================================================#
 		#*#*#*# TODO: Write your code to find the goal index of the maze #*#*#*#
 		#======================================================================#
-		
-		return None
+		maze = self.__arena
+		goal = (-1, -1)
+		for i in range(len(maze)):
+			for j in range(len(maze[0])):
+				if maze[i][j] == "s":
+					goal = (i, j)
+					print(goal)
+					return goal	
+		print(goal)
+		return goal
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
 		#=================================#

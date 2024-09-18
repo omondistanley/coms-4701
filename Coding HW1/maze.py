@@ -4,7 +4,7 @@ __email__ = "soo2117@columbia.edu"
 #======================================================================#
 #*#*#*# Optional: Import any allowed libraries you may need here #*#*#*#
 #======================================================================#
-
+import queue
 #=================================#
 #*#*#*# Your code ends here #*#*#*#
 #=================================#
@@ -63,7 +63,7 @@ class MazeState:
 		#=======================================================================#
 		#*#*#*# TODO: Write your code to find the start index of the maze #*#*#*#
 		#=======================================================================#
-		maze = self.__arena
+		maze = self.arena
 		start = (-1, -1)
 		for i in range(len(maze)):
 			for j in range(len(maze[0])):
@@ -85,7 +85,7 @@ class MazeState:
 		#======================================================================#
 		#*#*#*# TODO: Write your code to find the goal index of the maze #*#*#*#
 		#======================================================================#
-		maze = self.__arena
+		maze = self.arena
 		goal = (-1, -1)
 		for i in range(len(maze)):
 			for j in range(len(maze[0])):
@@ -109,7 +109,6 @@ class MazeState:
 
 		self.start = self.get_start_index()
 		self.goal = self.get_goal_index()
-
 		if(current_position[0] == -1):
 			self.current_position = self.start
 		else:
@@ -124,11 +123,18 @@ class MazeState:
 		If up is a valid move, returns a child in which the player has moved up
 		Else returns None.
 		'''
-		
+
 		#=================================================================#
 		#*#*#*# TODO: Write your code to move up in the puzzle here #*#*#*#
 		#=================================================================#
-		
+		maze = self.arena
+		pos = self.get_start_index()
+		i = pos[0]
+		j = pos[0]
+		if i > 0 and maze[i - 1][j] == "":
+			pos = (i -1, j)
+			return pos
+
 		return None
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -145,7 +151,14 @@ class MazeState:
 		#===================================================================#
 		#*#*#*# TODO: Write your code to move down in the puzzle here #*#*#*#
 		#===================================================================#
-		
+		maze = self.arena
+		pos = self.get_start_index()
+		i = pos[0]
+		j = pos[0]
+		if i < len(maze) and maze[i + 1][j] == "":
+			pos = (i + 1, j)
+			return pos
+
 		return None
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -161,6 +174,13 @@ class MazeState:
 		#===================================================================#
 		#*#*#*# TODO: Write your code to move left in the puzzle here #*#*#*#
 		#===================================================================#
+		maze = self.arena
+		pos = self.get_start_index()
+		i = pos[0]
+		j = pos[0]
+		if j > 0 and maze[i][ j -1] == "":
+			pos = (i, j - 1)
+			return pos
 		
 		return None
 		#=================================#
@@ -178,7 +198,13 @@ class MazeState:
 		#====================================================================#
 		#*#*#*# TODO: Write your code to move right in the puzzle here #*#*#*#
 		#====================================================================#
-		
+		maze = self.arena
+		pos = self.get_start_index()
+		i = pos[0]
+		j = pos[0]
+		if j < len(maze) and maze[i][j + 1] == "":
+			pos = (i, j + 1)
+			return pos
 		return None
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -267,7 +293,16 @@ def bfs(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
-	
+	currMaze = MazeState(arena)
+	nodequeue = queue.Queue()
+	begin = currMaze.start
+
+	nodequeue.put(begin)
+	visited = set()
+	path = []
+	while not nodequeue.empty():
+		currpos = nodequeue.get()
+
 	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#

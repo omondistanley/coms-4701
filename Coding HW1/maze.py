@@ -132,7 +132,8 @@ class MazeState:
 		i = pos[0]
 		j = pos[0]
 		if i > 0 and maze[i - 1][j] == "":
-			pos = (i -1, j)
+			#pos = (i -1, j)
+			pos = "1*"
 			return pos
 
 		return None
@@ -156,7 +157,7 @@ class MazeState:
 		i = pos[0]
 		j = pos[0]
 		if i < len(maze) and maze[i + 1][j] == "":
-			pos = (i + 1, j)
+			pos = "2*"
 			return pos
 
 		return None
@@ -179,7 +180,7 @@ class MazeState:
 		i = pos[0]
 		j = pos[0]
 		if j > 0 and maze[i][ j -1] == "":
-			pos = (i, j - 1)
+			pos = "3*"
 			return pos
 		
 		return None
@@ -203,7 +204,7 @@ class MazeState:
 		i = pos[0]
 		j = pos[0]
 		if j < len(maze) and maze[i][j + 1] == "":
-			pos = (i, j + 1)
+			pos = "4*"
 			return pos
 		return None
 		#=================================#
@@ -303,7 +304,34 @@ def bfs(arena):
 	while not nodequeue.empty():
 		currpos = nodequeue.get()
 
-	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
+		if currpos == "g":
+			path.append(currpos)
+			break
+		
+		for nextpos in arena[currpos[0]][currpos[1]]:
+			upPos = currMaze.move_up() 
+			if upPos is not None:
+				nextpos = upPos
+				if nextpos not in visited:
+					nodequeue.append(nextpos)
+			rightPos = currMaze.move_right()
+			if rightPos is not None:
+				nextpos = rightPos
+				if nextpos not in visited:
+					nodequeue.append(nextpos)
+			downPos = currMaze.move_down()
+			if downPos  is not None:
+				nextpos = downPos
+				if nextpos not in visited:
+					nodequeue.append(nextpos)
+			leftPos = currMaze.move_left()
+			if leftPos is not None:
+				nextpos = leftPos
+				if nextpos not in visited:
+					nodequeue.append(nextpos)
+		
+
+	return path, -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

@@ -344,28 +344,7 @@ def bfs(arena):
 		if currpos == target:
 			path.append(arena[currpos[0]][currpos[1]])
 			return path, cst , node_count, -1, -1, -1, -1 
-		
-		path.append(arena[currpos[0]][currpos[1]])
-		moves = []
-		upPos = currMaze.move_up()
-		if upPos is not None:
-			moves.append(upPos)
-		rightPos = currMaze.move_right()
-		if rightPos is not None:
-			moves.append(rightPos)
-		downPos = currMaze.move_down()
-		if downPos is not None:
-			moves.append(downPos)
-		leftPos = currMaze.move_left()
-		if leftPos is not None:
-			moves.append(leftPos)
-		
-		for nextPos in moves:
-			if nextPos not in visited:
-				nodequeue.put(nextPos)
-				visited.add(nextPos)
-		
-	print(len(moves))
+	
 	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#

@@ -71,7 +71,7 @@ class MazeState:
 					start = (i, j)
 					print(start)
 					return start
-		print(start)
+		#print(start)
 		return start
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -89,11 +89,11 @@ class MazeState:
 		goal = (-1, -1)
 		for i in range(len(maze)):
 			for j in range(len(maze[0])):
-				if maze[i][j] == "s":
+				if maze[i][j] == "g":
 					goal = (i, j)
 					print(goal)
 					return goal	
-		print(goal)
+		#ßprint(goal)
 		return goal
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -128,13 +128,20 @@ class MazeState:
 		#*#*#*# TODO: Write your code to move up in the puzzle here #*#*#*#
 		#=================================================================#
 		maze = self.arena
-		pos = self.get_start_index()
+		pos = self.current_position
 		i = pos[0]
-		j = pos[0]
+		j = pos[1]
 		if i > 0 and maze[i - 1][j] == "":
-			#pos = (i -1, j)
-			pos = "1*"
-			return pos
+			pos = (i -1, j)
+			
+			child_up = MazeState (
+				arena = self.arena,
+				parent = self,
+				action='up',
+				cost = self.cost+1,
+				current_position=pos
+			)
+			return child_up
 
 		return None
 		#=================================#
@@ -153,12 +160,20 @@ class MazeState:
 		#*#*#*# TODO: Write your code to move down in the puzzle here #*#*#*#
 		#===================================================================#
 		maze = self.arena
-		pos = self.get_start_index()
+		pos = self.current_position
 		i = pos[0]
-		j = pos[0]
+		j = pos[1]
 		if i < len(maze) and maze[i + 1][j] == "":
-			pos = "2*"
-			return pos
+			pos = (i + 1, j)
+
+			child_down = MazeState (
+				arena = self.arena,
+				parent = self,
+				action='down',
+				cost = self.cost+1,
+				current_position=pos
+			)
+			return child_down
 
 		return None
 		#=================================#
@@ -176,12 +191,19 @@ class MazeState:
 		#*#*#*# TODO: Write your code to move left in the puzzle here #*#*#*#
 		#===================================================================#
 		maze = self.arena
-		pos = self.get_start_index()
+		pos = self.current_position
 		i = pos[0]
 		j = pos[0]
 		if j > 0 and maze[i][ j -1] == "":
-			pos = "3*"
-			return pos
+			pos = (i, j -1)
+			child_left = MazeState (
+				arena = self.arena,
+				parent = self,
+				action='left',
+				cost = self.cost+1,
+				current_position=pos
+			)
+			return child_left
 		
 		return None
 		#=================================#
@@ -200,12 +222,21 @@ class MazeState:
 		#*#*#*# TODO: Write your code to move right in the puzzle here #*#*#*#
 		#====================================================================#
 		maze = self.arena
-		pos = self.get_start_index()
+		pos = self.current_position
 		i = pos[0]
 		j = pos[0]
 		if j < len(maze) and maze[i][j + 1] == "":
-			pos = "4*"
-			return pos
+			pos = (i, j+1)
+	
+			child_right = MazeState (
+				arena = self.arena,
+				parent = self,
+				action='up',
+				cost = self.cost+1,
+				current_position=pos
+			)
+			return child_right
+	
 		return None
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -294,44 +325,48 @@ def bfs(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
-	currMaze = MazeState(arena)
+	
 	nodequeue = queue.Queue()
+	currMaze = MazeState(arena)
 	begin = currMaze.start
-
+	target = currMaze.goal
+	cst = currMaze.cost
 	nodequeue.put(begin)
-	visited = set()
+	visited = set([begin])
+	node_count  = 0
+	
 	path = []
+	goalPath = [arena[begin[0]][begin[1]]]
 	while not nodequeue.empty():
 		currpos = nodequeue.get()
-
-		if currpos == "g":
-			path.append(currpos)
-			break
+		node_count = node_count + 1
 		
-		for nextpos in arena[currpos[0]][currpos[1]]:
-			upPos = currMaze.move_up() 
-			if upPos is not None:
-				nextpos = upPos
-				if nextpos not in visited:
-					nodequeue.append(nextpos)
-			rightPos = currMaze.move_right()
-			if rightPos is not None:
-				nextpos = rightPos
-				if nextpos not in visited:
-					nodequeue.append(nextpos)
-			downPos = currMaze.move_down()
-			if downPos  is not None:
-				nextpos = downPos
-				if nextpos not in visited:
-					nodequeue.append(nextpos)
-			leftPos = currMaze.move_left()
-			if leftPos is not None:
-				nextpos = leftPos
-				if nextpos not in visited:
-					nodequeue.append(nextpos)
+		if currpos == target:
+			path.append(arena[currpos[0]][currpos[1]])
+			return path, cst , node_count, -1, -1, -1, -1 
 		
-
-	return path, -1, -1, -1, -1, -1, -1 # Replace with return values
+		path.append(arena[currpos[0]][currpos[1]])
+		moves = []
+		upPos = currMaze.move_up()
+		if upPos is not None:
+			moves.append(upPos)
+		rightPos = currMaze.move_right()
+		if rightPos is not None:
+			moves.append(rightPos)
+		downPos = currMaze.move_down()
+		if downPos is not None:
+			moves.append(downPos)
+		leftPos = currMaze.move_left()
+		if leftPos is not None:
+			moves.append(leftPos)
+		
+		for nextPos in moves:
+			if nextPos not in visited:
+				nodequeue.put(nextPos)
+				visited.add(nextPos)
+		
+	print(len(moves))
+	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

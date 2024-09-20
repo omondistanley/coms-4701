@@ -93,7 +93,7 @@ class MazeState:
 					goal = (i, j)
 					print(goal)
 					return goal	
-		#ßprint(goal)
+		#print(goal)
 		return goal
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -129,6 +129,7 @@ class MazeState:
 		#=================================================================#
 		maze = self.arena
 		pos = self.current_position
+		#child = self.children
 		i = pos[0]
 		j = pos[1]
 		if i > 0 and maze[i - 1][j] == "":
@@ -138,9 +139,10 @@ class MazeState:
 				arena = self.arena,
 				parent = self,
 				action='up',
-				cost = self.cost+1,
+				cost = self.cost+1, 
 				current_position=pos
 			)
+			self.children.append(child_up)
 			return child_up
 
 		return None
@@ -173,6 +175,7 @@ class MazeState:
 				cost = self.cost+1,
 				current_position=pos
 			)
+			self.children.append(child_down)
 			return child_down
 
 		return None
@@ -193,7 +196,7 @@ class MazeState:
 		maze = self.arena
 		pos = self.current_position
 		i = pos[0]
-		j = pos[0]
+		j = pos[1]
 		if j > 0 and maze[i][ j -1] == "":
 			pos = (i, j -1)
 			child_left = MazeState (
@@ -203,6 +206,7 @@ class MazeState:
 				cost = self.cost+1,
 				current_position=pos
 			)
+			self.children.append(child_left)
 			return child_left
 		
 		return None
@@ -224,17 +228,18 @@ class MazeState:
 		maze = self.arena
 		pos = self.current_position
 		i = pos[0]
-		j = pos[0]
+		j = pos[1]
 		if j < len(maze) and maze[i][j + 1] == "":
 			pos = (i, j+1)
 	
 			child_right = MazeState (
 				arena = self.arena,
 				parent = self,
-				action='up',
+				action='right',
 				cost = self.cost+1,
 				current_position=pos
 			)
+			self.children.append(child_right)
 			return child_right
 	
 		return None
@@ -326,25 +331,9 @@ def bfs(arena):
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
 	
-	nodequeue = queue.Queue()
-	currMaze = MazeState(arena)
-	begin = currMaze.start
-	target = currMaze.goal
-	cst = currMaze.cost
-	nodequeue.put(begin)
-	visited = set([begin])
-	node_count  = 0
-	
-	path = []
-	goalPath = [arena[begin[0]][begin[1]]]
-	while not nodequeue.empty():
-		currpos = nodequeue.get()
-		node_count = node_count + 1
-		
-		if currpos == target:
-			path.append(arena[currpos[0]][currpos[1]])
-			return path, cst , node_count, -1, -1, -1, -1 
-	
+
+		#if currpos == target:
+			
 	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#

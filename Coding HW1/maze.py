@@ -348,13 +348,13 @@ def bfs(arena):
 				curr = track[curr]
 			print(len(path))
 			path.reverse()
-			print(f"moves: {[move for move in path]}")
+			#print(f"moves: {[move for move in path]}")
 			goalPath.reverse()
 
-			return goalPath, 0, -1, -1, -1, -1, -1
+			return goalPath, -1, -1, -1, -1, -1, -1
 		
 		moves = currarea.expand()
-		print(f"Current position: {curr}, Possible moves: {[move.current_position for move in moves]}")
+		#print(f"Current position: {curr}, Possible moves: {[move.current_position for move in moves]}")
 		#print(len(moves))
 		#print(len(path))
 		
@@ -366,7 +366,7 @@ def bfs(arena):
 				visited.add(nextmove)
 				track[nextmove] = curr
 	print("No path")
-	return [], 0, -1, -1, -1, -1, -1 # Replace with return values
+	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

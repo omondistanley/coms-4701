@@ -69,7 +69,7 @@ class MazeState:
 			for j in range(len(maze[0])):
 				if maze[i][j] == "s":
 					start = (i, j)
-					print(start)
+					#print(start)
 					return start
 		#print(start)
 		return start
@@ -91,7 +91,7 @@ class MazeState:
 			for j in range(len(maze[0])):
 				if maze[i][j] == "g":
 					goal = (i, j)
-					print(goal)
+					#print(goal)
 					return goal	
 		#print(goal)
 		return goal
@@ -343,10 +343,15 @@ def bfs(arena):
 		if curr == target:
 			goalPath = []
 			while curr:
-				goalPath.append(curr)
+				goalPath.append(arena[curr[0]][curr[1]])
+				path.append(curr)
 				curr = track[curr]
-			print(len(goalPath))
-			return path, -1, -1, -1, -1, -1, -1
+			print(len(path))
+			path.reverse()
+			print(f"moves: {[move for move in path]}")
+			goalPath.reverse()
+
+			return goalPath, 0, -1, -1, -1, -1, -1
 		
 		moves = currarea.expand()
 		print(f"Current position: {curr}, Possible moves: {[move.current_position for move in moves]}")
@@ -360,9 +365,8 @@ def bfs(arena):
 				frontier.put(nextmove)
 				visited.add(nextmove)
 				track[nextmove] = curr
-		
 	print("No path")
-	return path, -1, -1, -1, -1, -1, -1 # Replace with return values
+	return [], 0, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

@@ -4,7 +4,7 @@ __email__ = "soo2117@columbia.edu"
 #======================================================================#
 #*#*#*# Optional: Import any allowed libraries you may need here #*#*#*#
 #======================================================================#
-
+import queue
 #=================================#
 #*#*#*# Your code ends here #*#*#*#
 #=================================#
@@ -132,14 +132,14 @@ class MazeState:
 		#child = self.children
 		i = pos[0]
 		j = pos[1]
-		if i > 0 and maze[i - 1][j] == "":
+		if i > 0 and maze[i - 1][j] != "o":
 			pos = (i -1, j)
 			
 			child_up = MazeState (
 				arena = self.arena,
 				parent = self,
 				action='up',
-				cost = self.cost+1, 
+				#cost = self.cost+1, 
 				current_position=pos
 			)
 			return child_up
@@ -164,14 +164,14 @@ class MazeState:
 		pos = self.current_position
 		i = pos[0]
 		j = pos[1]
-		if i < len(maze) and maze[i + 1][j] == "":
+		if i + 1 < len(maze) and maze[i + 1][j] != "o":
 			pos = (i + 1, j)
 
 			child_down = MazeState (
 				arena = self.arena,
 				parent = self,
 				action='down',
-				cost = self.cost+1,
+				#cost = self.cost+1,
 				current_position=pos
 			)
 			return child_down
@@ -195,13 +195,13 @@ class MazeState:
 		pos = self.current_position
 		i = pos[0]
 		j = pos[1]
-		if j > 0 and maze[i][ j -1] == "":
+		if j > 0 and maze[i][ j -1] != "o":
 			pos = (i, j -1)
 			child_left = MazeState (
 				arena = self.arena,
 				parent = self,
 				action='left',
-				cost = self.cost+1,
+				#cost = self.cost+1,
 				current_position=pos
 			)
 			return child_left
@@ -226,14 +226,14 @@ class MazeState:
 		pos = self.current_position
 		i = pos[0]
 		j = pos[1]
-		if j < len(maze) and maze[i][j + 1] == "":
+		if j + 1 < len(maze) and maze[i][j + 1] != "o":
 			pos = (i, j+1)
 	
 			child_right = MazeState (
 				arena = self.arena,
 				parent = self,
 				action='right',
-				cost = self.cost+1,
+				#cost = self.cost+1,
 				current_position=pos
 			)
 			return child_right
@@ -255,6 +255,7 @@ class MazeState:
 		children = [self.move_up(), self.move_right(), self.move_down(), self.move_left()]
 
 		self.children = [state for state in children if state is not None]
+		#print(len(self.children))
 		return self.children
 		
 	def __hash__(self):
@@ -329,21 +330,38 @@ def bfs(arena):
 	currmaze = MazeState(arena)
 	begin = currmaze.start
 	target = currmaze.goal
-	frontier = []
-	frontier.append(begin)
+	frontier = queue.Queue()
+	frontier.put(begin)
 	visited = set()
+	visited.add(begin)
+	track = {begin: None}
 	path = []
 	
-	while frontier:
-		curr = frontier.pop(0)
+	while not frontier.empty():
+		curr = frontier.get()
+		currarea = MazeState(arena, current_position=curr)
 		if curr == target:
 			goalPath = []
-			
+			while curr:
+				goalPath.append(curr)
+				curr = track[curr]
+			print(len(goalPath))
+			return path, -1, -1, -1, -1, -1, -1
+		
+		moves = currarea.expand()
+		print(f"Current position: {curr}, Possible moves: {[move.current_position for move in moves]}")
+		#print(len(moves))
+		#print(len(path))
+		
 
-
-
-
-
+		for move in moves:
+			nextmove = move.current_position
+			if nextmove not in visited:
+				frontier.put(nextmove)
+				visited.add(nextmove)
+				track[nextmove] = curr
+		
+	print("No path")
 	return path, -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#

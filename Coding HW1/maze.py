@@ -5,6 +5,7 @@ __email__ = "soo2117@columbia.edu"
 #*#*#*# Optional: Import any allowed libraries you may need here #*#*#*#
 #======================================================================#
 import queue
+import time
 import resource
 #=================================#
 #*#*#*# Your code ends here #*#*#*#
@@ -330,6 +331,7 @@ def bfs(arena):
 	#=================================================#
 
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	starttime = time.time()
 	currmaze = MazeState(arena)
 	begin = currmaze.start
 	target = currmaze.goal
@@ -351,11 +353,13 @@ def bfs(arena):
 				curr = track[curr]
 			print(len(path))
 			path.reverse()
-			#print(f"moves: {[move for move in path]}")
+			print(f"moves: {[move for move in path]}")
 			goalPath.reverse()
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-			maxram = max(startram, endram)
-			return goalPath, -1, -1, -1, -1, -1, maxram
+			endtime = time.time()
+			maxram = endram - startram
+			runtime = endtime - starttime
+			return goalPath, -1, -1, -1, -1, runtime, maxram
 		
 		moves = currarea.expand()
 		#print(f"Current position: {curr}, Possible moves: {[move.current_position for move in moves]}")
@@ -371,8 +375,10 @@ def bfs(arena):
 				track[nextmove] = curr
 	print("No path")
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-	maxram = max(startram, endram)
-	return [], -1, -1, -1, -1, -1, maxram # Replace with return values
+	endtime = time.time()
+	runtime = endtime - starttime
+	maxram = endram - startram
+	return [], -1, -1, -1, -1, runtime, maxram # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

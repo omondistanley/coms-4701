@@ -4,7 +4,7 @@ __email__ = "soo2117@columbia.edu"
 #======================================================================#
 #*#*#*# Optional: Import any allowed libraries you may need here #*#*#*#
 #======================================================================#
-import queue
+
 #=================================#
 #*#*#*# Your code ends here #*#*#*#
 #=================================#
@@ -142,7 +142,6 @@ class MazeState:
 				cost = self.cost+1, 
 				current_position=pos
 			)
-			self.children.append(child_up)
 			return child_up
 
 		return None
@@ -175,7 +174,6 @@ class MazeState:
 				cost = self.cost+1,
 				current_position=pos
 			)
-			self.children.append(child_down)
 			return child_down
 
 		return None
@@ -206,7 +204,6 @@ class MazeState:
 				cost = self.cost+1,
 				current_position=pos
 			)
-			self.children.append(child_left)
 			return child_left
 		
 		return None
@@ -239,7 +236,6 @@ class MazeState:
 				cost = self.cost+1,
 				current_position=pos
 			)
-			self.children.append(child_right)
 			return child_right
 	
 		return None
@@ -330,11 +326,25 @@ def bfs(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
+	currmaze = MazeState(arena)
+	begin = currmaze.start
+	target = currmaze.goal
+	frontier = []
+	frontier.append(begin)
+	visited = set()
+	path = []
 	
-
-		#if currpos == target:
+	while frontier:
+		curr = frontier.pop(0)
+		if curr == target:
+			goalPath = []
 			
-	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
+
+
+
+
+
+	return path, -1, -1, -1, -1, -1, -1 # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

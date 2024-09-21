@@ -5,6 +5,7 @@ __email__ = "soo2117@columbia.edu"
 #*#*#*# Optional: Import any allowed libraries you may need here #*#*#*#
 #======================================================================#
 import queue
+import resource
 #=================================#
 #*#*#*# Your code ends here #*#*#*#
 #=================================#
@@ -327,6 +328,8 @@ def bfs(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
+
+	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	currmaze = MazeState(arena)
 	begin = currmaze.start
 	target = currmaze.goal
@@ -350,8 +353,9 @@ def bfs(arena):
 			path.reverse()
 			#print(f"moves: {[move for move in path]}")
 			goalPath.reverse()
-
-			return goalPath, -1, -1, -1, -1, -1, -1
+			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+			maxram = max(startram, endram)
+			return goalPath, -1, -1, -1, -1, -1, maxram
 		
 		moves = currarea.expand()
 		#print(f"Current position: {curr}, Possible moves: {[move.current_position for move in moves]}")
@@ -366,7 +370,9 @@ def bfs(arena):
 				visited.add(nextmove)
 				track[nextmove] = curr
 	print("No path")
-	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
+	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	maxram = max(startram, endram)
+	return [], -1, -1, -1, -1, -1, maxram # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

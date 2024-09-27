@@ -339,6 +339,7 @@ def bfs(arena):
 	frontier.put(currstate)
 	path = []
 	parent = {currstate: None}
+	max_nodes_stored = 1
 
 	while not frontier.empty():
 		current = frontier.get()
@@ -363,6 +364,7 @@ def bfs(arena):
 			if valid_move and valid_move.current_position not in explored:
 				frontier.put(valid_move)
 				parent[valid_move] = current
+				
 
 
 	

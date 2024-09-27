@@ -141,7 +141,7 @@ class MazeState:
 				arena = self.arena,
 				parent = self,
 				action='up',
-				#cost = self.cost+1, 
+				cost = self.cost + 1, 
 				current_position=pos
 			)
 			return child_up
@@ -173,7 +173,7 @@ class MazeState:
 				arena = self.arena,
 				parent = self,
 				action='down',
-				#cost = self.cost+1,
+				cost = self.cost+1,
 				current_position=pos
 			)
 			return child_down
@@ -203,7 +203,7 @@ class MazeState:
 				arena = self.arena,
 				parent = self,
 				action='left',
-				#cost = self.cost+1,
+				cost = self.cost+1,
 				current_position=pos
 			)
 			return child_left
@@ -228,14 +228,14 @@ class MazeState:
 		pos = self.current_position
 		i = pos[0]
 		j = pos[1]
-		if j + 1 < len(maze) and maze[i][j + 1] != "o":
+		if j + 1 < len(maze[i]) and maze[i][j + 1] != "o":
 			pos = (i, j+1)
 	
 			child_right = MazeState (
 				arena = self.arena,
 				parent = self,
 				action='right',
-				#cost = self.cost+1,
+				cost = self.cost+1,
 				current_position=pos
 			)
 			return child_right
@@ -325,55 +325,47 @@ This function runs Breadth First Search on the input arena (which is a list of s
 Returns a ([], int) tuple where the [] represents the solved arena as a list of str and the int represents the cost of the solution
 '''
 def bfs(arena):
-
 	#=================================================#
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
-
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	starttime = time.time()
-	currmaze = MazeState(arena)
-	begin = currmaze.start
-	target = currmaze.goal
+
+	currstate = MazeState(arena)
+	arenastart = currstate.start
+	arenagoal = currstate.goal
 	frontier = queue.Queue()
-	frontier.put(begin)
-	visited = set()
-	visited.add(begin)
-	track = {begin: None}
+	explored = set()
+	frontier.put(currstate)
 	path = []
-	
+	parent = {currstate: None}
+
 	while not frontier.empty():
-		curr = frontier.get()
-		currarea = MazeState(arena, current_position=curr)
-		if curr == target:
-			goalPath = []
-			while curr:
-				goalPath.append(arena[curr[0]][curr[1]])
-				path.append(curr)
-				curr = track[curr]
-			print(len(path))
-			path.reverse()
-			print(f"moves: {[move for move in path]}")
-			goalPath.reverse()
+		current = frontier.get()
+		explored.add(current.current_position)
+
+		if current.current_position == arenagoal:
+			cost = current.cost
+			pathToGoal = []
+			while current:
+				pathToGoal.append(arena[current.current_position[0]][current.current_position[1]])
+				path.append(current)
+				current = parent[current]
+			pathToGoal.reverse()
+			goalDepth = len(pathToGoal)
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
-			return goalPath, -1, -1, -1, -1, runtime, maxram
-		
-		moves = currarea.expand()
-		#print(f"Current position: {curr}, Possible moves: {[move.current_position for move in moves]}")
-		#print(len(moves))
-		#print(len(path))
-		
+			return pathToGoal, cost, -1, -1, goalDepth, runtime, maxram
 
-		for move in moves:
-			nextmove = move.current_position
-			if nextmove not in visited:
-				frontier.put(nextmove)
-				visited.add(nextmove)
-				track[nextmove] = curr
-	print("No path")
+		for valid_move in current.expand():
+			if valid_move and valid_move.current_position not in explored:
+				frontier.put(valid_move)
+				parent[valid_move] = current
+
+
+	
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
 	runtime = endtime - starttime
@@ -392,8 +384,19 @@ def dfs(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your DFS algorithm here #*#*#*#
 	#=================================================#
-	
-	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
+	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	starttime = time.time()
+
+	currstate = MazeState(arena)
+	arenastart = currstate.start
+	arenagoal = currstate.goal
+	#print(arenastart)
+	#print(arenagoal)
+	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	endtime = time.time()
+	runtime = endtime - starttime
+	maxram = endram - startram
+	return [], -1, -1, -1, -1, runtime, maxram # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#
@@ -407,8 +410,19 @@ def astar(arena):
 	#================================================#
 	#*#*#*# TODO: Write your A* algorithm here #*#*#*#
 	#================================================#
-	
-	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
+	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	starttime = time.time()
+
+	currstate = MazeState(arena)
+	arenastart = currstate.start
+	arenagoal = currstate.goal
+	#print(arenastart)
+	#print(arenagoal)
+	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	endtime = time.time()
+	runtime = endtime - starttime
+	maxram = endram - startram
+	return [], -1, -1, -1, -1, runtime, maxram# Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#
@@ -422,8 +436,19 @@ def ida(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your IDA algorithm here #*#*#*#
 	#=================================================#
+	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	starttime = time.time()
 
-	return [], -1, -1, -1, -1, -1, -1 # Replace with return values
+	currstate = MazeState(arena)
+	arenastart = currstate.start
+	arenagoal = currstate.goal
+	#print(arenastart)
+	#print(arenagoal)
+	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+	endtime = time.time()
+	runtime = endtime - starttime
+	maxram = endram - startram
+	return [], -1, -1, -1, -1, runtime, maxram# Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

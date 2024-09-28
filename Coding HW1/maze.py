@@ -328,6 +328,7 @@ def bfs(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
+	nodesexpanded = -1
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	starttime = time.time()
 
@@ -344,7 +345,7 @@ def bfs(arena):
 	while not frontier.empty():
 		current = frontier.get()
 		explored.add(current.current_position)
-
+		
 		if current.current_position == arenagoal:
 			cost = current.cost
 			pathToGoal = []
@@ -358,12 +359,14 @@ def bfs(arena):
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
-			return pathToGoal, cost, -1, -1, goalDepth, runtime, maxram
+			return pathToGoal, cost, nodesexpanded, -1, -1, runtime, maxram
 
 		for valid_move in current.expand():
 			if valid_move and valid_move.current_position not in explored:
 				frontier.put(valid_move)
 				parent[valid_move] = current
+		
+		#nodesexpanded += 1
 				
 
 
@@ -372,7 +375,7 @@ def bfs(arena):
 	endtime = time.time()
 	runtime = endtime - starttime
 	maxram = endram - startram
-	return [], -1, -1, -1, -1, runtime, maxram # Replace with return values
+	return [], -1, nodesexpanded, -1, -1, runtime, maxram # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#
@@ -394,6 +397,36 @@ def dfs(arena):
 	arenagoal = currstate.goal
 	#print(arenastart)
 	#print(arenagoal)
+	frontier = []
+	explored = set()
+	frontier.append(currstate)
+	path = []
+	parent = {currstate: None}
+	max_nodes_stored = 1
+
+	while frontier:
+		current = frontier.pop()
+		explored.add(current.current_position)
+
+		if current.current_position == arenagoal:
+			cost = current.cost
+			dfs_path = []
+			while current:
+				dfs_path.append(arena[current.current_position[0]][current.current_position[1]])
+				path.append(current)
+				current = parent[current]
+			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+			goalDepth = len(dfs_path)
+			endtime = time.time()
+			maxram = endram - startram
+			runtime = endtime - starttime
+			return dfs_path, cost, -1, -1, -1, runtime, maxram
+		
+		moves = current.expand()
+		for valid_move in reversed(moves):
+			if valid_move not in frontier and valid_move.current_position not in explored:
+				frontier.append(valid_move)
+				parent[valid_move] = current
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
 	runtime = endtime - starttime

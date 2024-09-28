@@ -5,6 +5,7 @@ __email__ = "soo2117@columbia.edu"
 #*#*#*# Optional: Import any allowed libraries you may need here #*#*#*#
 #======================================================================#
 import queue
+import heapq
 import time
 import resource
 #=================================#
@@ -274,6 +275,7 @@ class MazeState:
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
 		#=================================#
+	
 		
 	def __eq__(self, other):
 		'''
@@ -294,7 +296,6 @@ class MazeState:
 		for i in range(0, len(m1)):
 			if(not (m1[i] == m2[i])):
 				return False
-				
 		return self.current_position == other.current_position
 		
 		#=================================#
@@ -364,12 +365,8 @@ def bfs(arena):
 		for valid_move in current.expand():
 			if valid_move and valid_move.current_position not in explored:
 				frontier.put(valid_move)
+				explored.add(valid_move.current_position)
 				parent[valid_move] = current
-		
-		#nodesexpanded += 1
-				
-
-
 	
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
@@ -426,6 +423,7 @@ def dfs(arena):
 		for valid_move in reversed(moves):
 			if valid_move not in frontier and valid_move.current_position not in explored:
 				frontier.append(valid_move)
+				explored.add(valid_move.current_position)
 				parent[valid_move] = current
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
@@ -451,6 +449,44 @@ def astar(arena):
 	currstate = MazeState(arena)
 	arenastart = currstate.start
 	arenagoal = currstate.goal
+
+	frontier = queue.PriorityQueue()
+	explored = set()
+	frontier.put((0, currstate))
+	parent = {currstate: None}
+	path =[]
+
+	while not frontier.empty():
+		priority, current = frontier.get()
+		explored.add(current.current_position)
+		#path.append(current)
+
+		if current.current_position == arenagoal:
+			cost = current.cost
+			astar_path = []
+			while current:
+				astar_path.append(arena[current.current_position[0]][current.current_position[1]])
+				current = parent[current]
+			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+			goalDepth = len(astar_path)
+			endtime = time.time()
+			maxram = endram - startram
+			runtime = endtime - starttime
+			return astar_path, cost, -1, -1, -1, runtime, maxram
+		
+		for valid_move in current.expand():
+			'''heuristic = abs(valid_move.current_position[0] - arenagoal[0]) + abs(valid_move.current_position[1] - arenagoal[1])
+			function = valid_move.cost + heuristic
+			valid_move.cost = function'''
+
+			if valid_move not in path and valid_move.current_position not in explored:
+				frontier.put((valid_move.cost, valid_move))
+				explored.add(valid_move.current_position)
+				parent[valid_move] = current
+			#elif valid_move in path:
+
+				
+
 	#print(arenastart)
 	#print(arenagoal)
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss

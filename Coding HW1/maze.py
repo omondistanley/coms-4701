@@ -415,11 +415,15 @@ def dfs(arena):
 	parent = {currstate: None}
 	max_nodes_expanded = -1
 	max_nodes_stored = -1
+	depth = {currstate: 0}
+	maxdepth = 0
 
 	while frontier:
 		current = frontier.pop()
+		currdepth = depth[current]
 		explored.add(current.current_position)
 		max_nodes_expanded = max_nodes_expanded + 1
+		maxdepth = max(maxdepth, currdepth)
 		if current.current_position == arenagoal:
 			cost = current.cost
 			dfs_path = []
@@ -436,7 +440,7 @@ def dfs(arena):
 			maxram = endram - startram
 			runtime = endtime - starttime
 			arena = ["".join(row) for row in arena]
-			return arena, cost, max_nodes_expanded, max_nodes_stored, -1, runtime, maxram
+			return arena, cost, max_nodes_expanded, max_nodes_stored, maxdepth, runtime, maxram
 		
 		moves = current.expand()
 		for valid_move in reversed(moves):
@@ -444,12 +448,13 @@ def dfs(arena):
 				frontier.append(valid_move)
 				explored.add(valid_move.current_position)
 				parent[valid_move] = current
+				depth[valid_move] = currdepth + 1
 				#max_nodes_stored = max(max_nodes_stored, len(frontier))
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
 	runtime = endtime - starttime
 	maxram = endram - startram
-	return [], -1, max_nodes_expanded, -1, -1, runtime, maxram # Replace with return values
+	return [], -1, max_nodes_expanded, -1, maxdepth, runtime, maxram # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#
@@ -477,6 +482,8 @@ def astar(arena):
 	parent = {currstate: None}
 	path =[]
 	max_nodes_expanded = -1
+	depth = {currstate: 0}
+	maxdepth = 0
 
 	while not frontier.empty():
 		priority, current = frontier.get()

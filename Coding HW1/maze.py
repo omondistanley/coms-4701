@@ -368,6 +368,7 @@ def bfs(arena):
 				current = parent[current]
 			pathToGoal.reverse()
 			goalDepth = len(pathToGoal)
+			max_nodes_stored = len(explored)
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			maxram = endram - startram
@@ -438,6 +439,7 @@ def dfs(arena):
 			goalDepth = len(dfs_path)
 			endtime = time.time()
 			maxram = endram - startram
+			max_nodes_stored = len(explored)
 			runtime = endtime - starttime
 			arena = ["".join(row) for row in arena]
 			return arena, cost, max_nodes_expanded, max_nodes_stored, maxdepth, runtime, maxram
@@ -484,6 +486,7 @@ def astar(arena):
 	max_nodes_expanded = -1
 	depth = {currstate: 0}
 	maxdepth = 0
+	max_nodes_stored = -1
 
 	while not frontier.empty():
 		priority, current = frontier.get()
@@ -491,7 +494,7 @@ def astar(arena):
 		explored.add(current.current_position)
 		path.append(current)
 		maxdepth = max(maxdepth, currdepth)
-		#max_nodes_expanded = max_nodes_expanded + 1
+		max_nodes_expanded = max_nodes_expanded + 1
 
 		if current.current_position == arenagoal:
 			cost = current.cost
@@ -502,27 +505,24 @@ def astar(arena):
 				if arena[row][column] != "g" and arena[row][column] != "s":
 					arena[row][column] = '*'
 				current = parent[current]
+			max_nodes_stored = len(explored)
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			goalDepth = len(astar_path)
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
 			arena = ["".join(row) for row in arena]
-			return arena, cost, max_nodes_expanded, -1, maxdepth, runtime, maxram
+			return arena, cost, max_nodes_expanded, max_nodes_stored, maxdepth, runtime, maxram
 		
 		for valid_move in current.expand():
-			'''heuristic = abs(valid_move.current_position[0] - arenagoal[0]) + abs(valid_move.current_position[1] - arenagoal[1])
+			heuristic = abs(valid_move.current_position[0] - arenagoal[0]) + abs(valid_move.current_position[1] - arenagoal[1])
 			function = valid_move.cost + heuristic
-			valid_move.cost = function'''
 
 			if valid_move not in path and valid_move.current_position not in explored:
-				frontier.put((valid_move.cost, valid_move))
+				frontier.put((function, valid_move))
 				explored.add(valid_move.current_position)
 				parent[valid_move] = current
 				depth[valid_move] = currdepth + 1
-			#elif valid_move in path:
-	#print(arenastart)
-	#print(arenagoal)
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
 	runtime = endtime - starttime

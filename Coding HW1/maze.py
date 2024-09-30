@@ -334,7 +334,7 @@ def bfs(arena):
 	nodesexpanded = -1
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	starttime = time.time()
-
+	arena = [list(row) for row in arena]
 	currstate = MazeState(arena)
 	arenastart = currstate.start
 	arenagoal = currstate.goal
@@ -343,17 +343,27 @@ def bfs(arena):
 	frontier.put(currstate)
 	path = []
 	parent = {currstate: None}
-	max_nodes_stored = 1
+	max_nodes_expanded = -1
+	max_nodes_stored = -1
+	depth = {currstate: 0}
+	maxdepth = 0
 
 	while not frontier.empty():
 		current = frontier.get()
+		currdeptth = depth[current]
 		explored.add(current.current_position)
+		max_nodes_expanded = max_nodes_expanded + 1
+		maxdepth = max(maxdepth, currdeptth)
 		
 		if current.current_position == arenagoal:
+			maxdepth = maxdepth + 1
 			cost = current.cost
 			pathToGoal = []
 			while current:
-				pathToGoal.append(arena[current.current_position[0]][current.current_position[1]])
+				#pathToGoal.append(arena[current.current_position[0]][current.current_position[1]])
+				row, column = current.current_position
+				if arena[row][column] != "g" and arena[row][column] != "s":
+					arena[row][column] = '*'
 				path.append(current)
 				current = parent[current]
 			pathToGoal.reverse()
@@ -362,19 +372,22 @@ def bfs(arena):
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
-			return pathToGoal, cost, nodesexpanded, -1, -1, runtime, maxram
+			arena = ["".join(row) for row in arena]
+			return arena, cost, max_nodes_expanded, max_nodes_stored, maxdepth, runtime, maxram
 
 		for valid_move in current.expand():
 			if valid_move and valid_move.current_position not in explored:
 				frontier.put(valid_move)
 				explored.add(valid_move.current_position)
 				parent[valid_move] = current
+				depth[valid_move] = currdeptth + 1
+				#max_nodes_stored = max(max_nodes_stored, frontier.qsize())
 	
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
 	runtime = endtime - starttime
 	maxram = endram - startram
-	return [], -1, nodesexpanded, -1, -1, runtime, maxram # Replace with return values
+	return [], cost, max_nodes_expanded, max_nodes_stored, -1, runtime, maxram # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#
@@ -391,27 +404,30 @@ def dfs(arena):
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	starttime = time.time()
 
+	arena = [list(row) for row in arena]
 	currstate = MazeState(arena)
 	arenastart = currstate.start
 	arenagoal = currstate.goal
-	#print(arenastart)
-	#print(arenagoal)
 	frontier = []
 	explored = set()
 	frontier.append(currstate)
 	path = []
 	parent = {currstate: None}
-	max_nodes_stored = 1
+	max_nodes_expanded = -1
+	max_nodes_stored = -1
 
 	while frontier:
 		current = frontier.pop()
 		explored.add(current.current_position)
-
+		max_nodes_expanded = max_nodes_expanded + 1
 		if current.current_position == arenagoal:
 			cost = current.cost
 			dfs_path = []
 			while current:
-				dfs_path.append(arena[current.current_position[0]][current.current_position[1]])
+				#dfs_path.append(arena[current.current_position[0]][current.current_position[1]])
+				row, column = current.current_position
+				if arena[row][column] != "g" and arena[row][column] != "s":
+					arena[row][column] = '*'
 				path.append(current)
 				current = parent[current]
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -419,7 +435,8 @@ def dfs(arena):
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
-			return dfs_path, cost, -1, -1, -1, runtime, maxram
+			arena = ["".join(row) for row in arena]
+			return arena, cost, max_nodes_expanded, max_nodes_stored, -1, runtime, maxram
 		
 		moves = current.expand()
 		for valid_move in reversed(moves):
@@ -427,11 +444,12 @@ def dfs(arena):
 				frontier.append(valid_move)
 				explored.add(valid_move.current_position)
 				parent[valid_move] = current
+				#max_nodes_stored = max(max_nodes_stored, len(frontier))
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
 	runtime = endtime - starttime
 	maxram = endram - startram
-	return [], -1, -1, -1, -1, runtime, maxram # Replace with return values
+	return [], -1, max_nodes_expanded, -1, -1, runtime, maxram # Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#
@@ -448,6 +466,7 @@ def astar(arena):
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	starttime = time.time()
 
+	arena = [list(row) for row in arena]
 	currstate = MazeState(arena)
 	arenastart = currstate.start
 	arenagoal = currstate.goal
@@ -457,24 +476,30 @@ def astar(arena):
 	frontier.put((0, currstate))
 	parent = {currstate: None}
 	path =[]
+	max_nodes_expanded = -1
 
 	while not frontier.empty():
 		priority, current = frontier.get()
 		explored.add(current.current_position)
 		path.append(current)
+		#max_nodes_expanded = max_nodes_expanded + 1
 
 		if current.current_position == arenagoal:
 			cost = current.cost
 			astar_path = []
 			while current:
-				astar_path.append(arena[current.current_position[0]][current.current_position[1]])
+				#arena[current.current_position[0]][current.current_position[1]] = '*'
+				row, column = current.current_position
+				if arena[row][column] != "g" and arena[row][column] != "s":
+					arena[row][column] = '*'
 				current = parent[current]
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			goalDepth = len(astar_path)
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
-			return astar_path, cost, -1, -1, -1, runtime, maxram
+			arena = ["".join(row) for row in arena]
+			return arena, cost, max_nodes_expanded, -1, -1, runtime, maxram
 		
 		for valid_move in current.expand():
 			'''heuristic = abs(valid_move.current_position[0] - arenagoal[0]) + abs(valid_move.current_position[1] - arenagoal[1])
@@ -492,7 +517,7 @@ def astar(arena):
 	endtime = time.time()
 	runtime = endtime - starttime
 	maxram = endram - startram
-	return [], -1, -1, -1, -1, runtime, maxram# Replace with return values
+	return [], -1, max_nodes_expanded, -1, -1, runtime, maxram# Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#
@@ -508,7 +533,8 @@ def ida(arena):
 	#=================================================#
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	starttime = time.time()
-
+	arena = [list(row) for row in arena]
+	arena = [list(row) for row in arena]
 	currstate = MazeState(arena)
 	arenastart = currstate.start
 	arenagoal = currstate.goal
@@ -516,29 +542,32 @@ def ida(arena):
 	limit = heuristic
 
 	while True:
-		path, cost = dls(currstate, limit)
+		path, cost, max_nodes_expanded = dls(currstate, arena, limit)
 		if path:
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
-			return path, cost, -1, -1, -1, runtime, maxram 
+			arena = ["".join(row) for row in arena]
+			return arena, cost, max_nodes_expanded, -1, -1, runtime, maxram 
 		
 		if cost == float("inf"):
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			runtime = endtime - starttime
 			maxram = endram - startram
-			return [], -1, -1, -1, -1, runtime, maxram# Replace with return values
+			return [], -1, max_nodes_expanded, -1, -1, runtime, maxram# Replace with return values
 		limit = cost
 
-def dls(currstate, limit):
+def dls(currstate, arena, limit):
 	parent = { currstate: None}
 	frontier = []
 	frontier.append(currstate)
 	min_cost = float("inf")
+	max_nodes_expanded = -1
 	while frontier:
 		current = frontier.pop()
+		#max_nodes_expanded = max_nodes_expanded + 1
 		f = current.cost + abs(current.current_position[0] - current.goal[0]) + abs(current.current_position[1] - current.goal[1])
 				
 		if f > limit:
@@ -549,16 +578,19 @@ def dls(currstate, limit):
 			cost = current.cost
 			dls_path = []
 			while current:
-				dls_path.append(currstate.arena[current.current_position[0]][current.current_position[1]])
+				#dls_path.append(currstate.arena[current.current_position[0]][current.current_position[1]])
+				row, column = current.current_position
+				if arena[row][column] != "g" and arena[row][column] != "s":
+					arena[row][column] = '*'
 				current = parent[current]
-			return reversed(dls_path), cost
+			return arena, cost, max_nodes_expanded
 		
-		for valid_move in current.expand():
+		for valid_move in reversed(current.expand()):
 			if valid_move not in parent:
 				frontier.append(valid_move)
 				parent[valid_move] = current
 		
-	return [], min_cost
+	return [], min_cost, max_nodes_expanded
 			
 		
 		

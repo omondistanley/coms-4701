@@ -487,8 +487,10 @@ def astar(arena):
 
 	while not frontier.empty():
 		priority, current = frontier.get()
+		currdepth = depth[current]
 		explored.add(current.current_position)
 		path.append(current)
+		maxdepth = max(maxdepth, currdepth)
 		#max_nodes_expanded = max_nodes_expanded + 1
 
 		if current.current_position == arenagoal:
@@ -506,7 +508,7 @@ def astar(arena):
 			maxram = endram - startram
 			runtime = endtime - starttime
 			arena = ["".join(row) for row in arena]
-			return arena, cost, max_nodes_expanded, -1, -1, runtime, maxram
+			return arena, cost, max_nodes_expanded, -1, maxdepth, runtime, maxram
 		
 		for valid_move in current.expand():
 			'''heuristic = abs(valid_move.current_position[0] - arenagoal[0]) + abs(valid_move.current_position[1] - arenagoal[1])
@@ -517,6 +519,7 @@ def astar(arena):
 				frontier.put((valid_move.cost, valid_move))
 				explored.add(valid_move.current_position)
 				parent[valid_move] = current
+				depth[valid_move] = currdepth + 1
 			#elif valid_move in path:
 	#print(arenastart)
 	#print(arenagoal)
@@ -524,7 +527,7 @@ def astar(arena):
 	endtime = time.time()
 	runtime = endtime - starttime
 	maxram = endram - startram
-	return [], -1, max_nodes_expanded, -1, -1, runtime, maxram# Replace with return values
+	return [], -1, max_nodes_expanded, -1, maxdepth, runtime, maxram# Replace with return values
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

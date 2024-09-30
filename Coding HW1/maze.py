@@ -459,7 +459,7 @@ def astar(arena):
 	while not frontier.empty():
 		priority, current = frontier.get()
 		explored.add(current.current_position)
-		#path.append(current)
+		path.append(current)
 
 		if current.current_position == arenagoal:
 			cost = current.cost
@@ -484,6 +484,8 @@ def astar(arena):
 				explored.add(valid_move.current_position)
 				parent[valid_move] = current
 			#elif valid_move in path:
+
+
 
 				
 
@@ -513,13 +515,61 @@ def ida(arena):
 	currstate = MazeState(arena)
 	arenastart = currstate.start
 	arenagoal = currstate.goal
-	#print(arenastart)
-	#print(arenagoal)
+	frontier = []
+	maxCost = currstate.cost
+	frontier.append(currstate)
+	parent = {currstate: None}
+	path = []
+	heuristic = abs(arenastart[0] - arenagoal[0]) + abs(arenastart[1] - arenagoal[1])
+	limit = heuristic
+
+
+
+	
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	endtime = time.time()
 	runtime = endtime - starttime
 	maxram = endram - startram
 	return [], -1, -1, -1, -1, runtime, maxram# Replace with return values
+
+def dls(arena, limit):
+	currstate = MazeState(arena)
+	arenastart = currstate.start
+	arenagoal = currstate.goal
+	frontier = []
+	frontier.append(currstate)
+	explored = set()
+	path = []
+	parent = {currstate: None}
+
+	while frontier:
+		current = frontier.pop()
+		explored.add(current.current_postion)
+
+		if current.current_position == arenagoal:
+			cost = current.cost
+			dls_path = []
+			while current:
+				dls_path.append(arena[current.current_position[0]][current.current_position[1]])
+				path.append(current)
+				current = parent[current]
+			return dls_path
+		
+		heuristic = abs(current.current_position[0] - arenagoal[0]) + abs(current.current_position[1] - arenagoal[1])
+		if heuristic > limit:
+			limit = heuristic
+		
+		for valid_move in reversed(current.expand()):
+			if valid_move not in frontier and valid_move.current_position not in explored:
+				frontier.append(valid_move)
+				explored.add(valid_move.current_position)
+				parent[valid_move] = current
+	
+	return []
+
+
+
+	
 	#=================================#
 	#*#*#*# Your code ends here #*#*#*#
 	#=================================#

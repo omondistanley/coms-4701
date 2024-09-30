@@ -552,21 +552,21 @@ def ida(arena):
 	limit = heuristic
 
 	while True:
-		path, cost, max_nodes_expanded = dls(currstate, arena, limit)
+		path, cost, max_nodes_expanded, maxdepth = dls(currstate, arena, limit)
 		if path:
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
 			arena = ["".join(row) for row in arena]
-			return arena, cost, max_nodes_expanded, -1, -1, runtime, maxram 
+			return arena, cost, max_nodes_expanded, -1, maxdepth, runtime, maxram 
 		
 		if cost == float("inf"):
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			runtime = endtime - starttime
 			maxram = endram - startram
-			return [], -1, max_nodes_expanded, -1, -1, runtime, maxram# Replace with return values
+			return [], -1, max_nodes_expanded, -1, maxdepth, runtime, maxram# Replace with return values
 		limit = cost
 
 def dls(currstate, arena, limit):
@@ -575,8 +575,13 @@ def dls(currstate, arena, limit):
 	frontier.append(currstate)
 	min_cost = float("inf")
 	max_nodes_expanded = -1
+	max_depth = 0
+	depth = {currstate: 0}
+	
 	while frontier:
 		current = frontier.pop()
+		currdepth = depth[current]
+		max_depth = max(max_depth, currdepth)
 		#max_nodes_expanded = max_nodes_expanded + 1
 		f = current.cost + abs(current.current_position[0] - current.goal[0]) + abs(current.current_position[1] - current.goal[1])
 				
@@ -593,14 +598,15 @@ def dls(currstate, arena, limit):
 				if arena[row][column] != "g" and arena[row][column] != "s":
 					arena[row][column] = '*'
 				current = parent[current]
-			return arena, cost, max_nodes_expanded
+			return arena, cost, max_nodes_expanded, max_depth
 		
 		for valid_move in reversed(current.expand()):
 			if valid_move not in parent:
 				frontier.append(valid_move)
 				parent[valid_move] = current
+				depth[valid_move] = currdepth + 1
 		
-	return [], min_cost, max_nodes_expanded
+	return [], min_cost, max_nodes_expanded, max_depth
 			
 		
 		

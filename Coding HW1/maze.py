@@ -297,10 +297,12 @@ class MazeState:
 			if(not (m1[i] == m2[i])):
 				return False
 		return self.current_position == other.current_position
-		
+	def __lt__(self, other):
+		return self.cost < other.cost	
 		#=================================#
 		#*#*#*# Your code ends here #*#*#*#
 		#=================================#
+
 		
 	#=====================================================================================#
 	#*#*#*# Optional: Write any other functions you may need in the MazeState Class #*#*#*#
@@ -484,11 +486,6 @@ def astar(arena):
 				explored.add(valid_move.current_position)
 				parent[valid_move] = current
 			#elif valid_move in path:
-
-
-
-				
-
 	#print(arenastart)
 	#print(arenagoal)
 	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -515,58 +512,56 @@ def ida(arena):
 	currstate = MazeState(arena)
 	arenastart = currstate.start
 	arenagoal = currstate.goal
-	frontier = []
-	maxCost = currstate.cost
-	frontier.append(currstate)
-	parent = {currstate: None}
-	path = []
 	heuristic = abs(arenastart[0] - arenagoal[0]) + abs(arenastart[1] - arenagoal[1])
 	limit = heuristic
 
+	while True:
+		path, cost = dls(currstate, limit)
+		if path:
+			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+			endtime = time.time()
+			maxram = endram - startram
+			runtime = endtime - starttime
+			return path, cost, -1, -1, -1, runtime, maxram 
+		
+		if cost == float("inf"):
+			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+			endtime = time.time()
+			runtime = endtime - starttime
+			maxram = endram - startram
+			return [], -1, -1, -1, -1, runtime, maxram# Replace with return values
+		limit = cost
 
-
-	
-	endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-	endtime = time.time()
-	runtime = endtime - starttime
-	maxram = endram - startram
-	return [], -1, -1, -1, -1, runtime, maxram# Replace with return values
-
-def dls(arena, limit):
-	currstate = MazeState(arena)
-	arenastart = currstate.start
-	arenagoal = currstate.goal
+def dls(currstate, limit):
+	parent = { currstate: None}
 	frontier = []
 	frontier.append(currstate)
-	explored = set()
-	path = []
-	parent = {currstate: None}
-
+	min_cost = float("inf")
 	while frontier:
 		current = frontier.pop()
-		explored.add(current.current_postion)
+		f = current.cost + abs(current.current_position[0] - current.goal[0]) + abs(current.current_position[1] - current.goal[1])
+				
+		if f > limit:
+			min_cost = min(f, min_cost)
+			continue
 
-		if current.current_position == arenagoal:
+		if current.current_position == current.goal:
 			cost = current.cost
 			dls_path = []
 			while current:
-				dls_path.append(arena[current.current_position[0]][current.current_position[1]])
-				path.append(current)
+				dls_path.append(currstate.arena[current.current_position[0]][current.current_position[1]])
 				current = parent[current]
-			return dls_path
+			return reversed(dls_path), cost
 		
-		heuristic = abs(current.current_position[0] - arenagoal[0]) + abs(current.current_position[1] - arenagoal[1])
-		if heuristic > limit:
-			limit = heuristic
-		
-		for valid_move in reversed(current.expand()):
-			if valid_move not in frontier and valid_move.current_position not in explored:
+		for valid_move in current.expand():
+			if valid_move not in parent:
 				frontier.append(valid_move)
-				explored.add(valid_move.current_position)
 				parent[valid_move] = current
-	
-	return []
-
+		
+	return [], min_cost
+			
+		
+		
 
 
 	

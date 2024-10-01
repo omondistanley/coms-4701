@@ -1,3 +1,4 @@
+
 __author__ = "Stanley Omondi"
 __email__ = "soo2117@columbia.edu"
 
@@ -331,7 +332,7 @@ def bfs(arena):
 	#=================================================#
 	#*#*#*# TODO: Write your BFS algorithm here #*#*#*#
 	#=================================================#
-	nodesexpanded = -1
+	#nodesexpanded = -1
 	startram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 	starttime = time.time()
 	arena = [list(row) for row in arena]
@@ -356,7 +357,8 @@ def bfs(arena):
 		maxdepth = max(maxdepth, currdeptth)
 		
 		if current.current_position == arenagoal:
-			maxdepth = maxdepth + 1
+			if current.move_up() in depth:
+				maxdepth = maxdepth + 1
 			cost = current.cost
 			pathToGoal = []
 			while current:
@@ -367,7 +369,7 @@ def bfs(arena):
 				path.append(current)
 				current = parent[current]
 			pathToGoal.reverse()
-			goalDepth = len(pathToGoal)
+			#goalDepth = len(pathToGoal)
 			max_nodes_stored = len(explored)
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
@@ -436,7 +438,7 @@ def dfs(arena):
 				path.append(current)
 				current = parent[current]
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-			goalDepth = len(dfs_path)
+			#goalDepth = len(dfs_path)
 			endtime = time.time()
 			maxram = endram - startram
 			max_nodes_stored = len(explored)
@@ -498,7 +500,7 @@ def astar(arena):
 
 		if current.current_position == arenagoal:
 			cost = current.cost
-			astar_path = []
+			#astar_path = []
 			while current:
 				#arena[current.current_position[0]][current.current_position[1]] = '*'
 				row, column = current.current_position
@@ -507,14 +509,14 @@ def astar(arena):
 				current = parent[current]
 			max_nodes_stored = len(explored)
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-			goalDepth = len(astar_path)
+			#goalDepth = len(astar_path)
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
 			arena = ["".join(row) for row in arena]
 			return arena, cost, max_nodes_expanded, max_nodes_stored, maxdepth, runtime, maxram
 		
-		for valid_move in current.expand():
+		for valid_move in (current.expand()):
 			heuristic = abs(valid_move.current_position[0] - arenagoal[0]) + abs(valid_move.current_position[1] - arenagoal[1])
 			function = valid_move.cost + heuristic
 
@@ -550,39 +552,47 @@ def ida(arena):
 	arenagoal = currstate.goal
 	heuristic = abs(arenastart[0] - arenagoal[0]) + abs(arenastart[1] - arenagoal[1])
 	limit = heuristic
+	max_nodes_stored = 0
+	max_nodes_expanded = 0
 
 	while True:
-		path, cost, max_nodes_expanded, maxdepth = dls(currstate, arena, limit)
+		path, cost, nodes_expanded, max_nodes, maxdepth = dls(currstate, arena, limit, max_nodes_stored)
 		if path:
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			maxram = endram - startram
 			runtime = endtime - starttime
 			arena = ["".join(row) for row in arena]
-			return arena, cost, max_nodes_expanded, -1, maxdepth, runtime, maxram 
+			max_nodes_stored = max(max_nodes_stored, max_nodes)
+			max_nodes_expanded = max_nodes_expanded + nodes_expanded
+			return arena, cost, max_nodes_expanded, max_nodes_stored, maxdepth, runtime, maxram 
 		
 		if cost == float("inf"):
 			endram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 			endtime = time.time()
 			runtime = endtime - starttime
 			maxram = endram - startram
-			return [], -1, max_nodes_expanded, -1, maxdepth, runtime, maxram# Replace with return values
+			return [], -1, max_nodes_expanded, max_nodes_stored, maxdepth, runtime, maxram# Replace with return values
 		limit = cost
-
-def dls(currstate, arena, limit):
+		max_nodes_stored = max(max_nodes_stored, max_nodes)
+		max_nodes_expanded = max_nodes_expanded + nodes_expanded
+		
+def dls(currstate, arena, limit, max_stored):
 	parent = { currstate: None}
 	frontier = []
 	frontier.append(currstate)
 	min_cost = float("inf")
-	max_nodes_expanded = -1
+	max_nodes_expanded = 0
 	max_depth = 0
+	stored_nodes = 0
 	depth = {currstate: 0}
 	
 	while frontier:
 		current = frontier.pop()
 		currdepth = depth[current]
 		max_depth = max(max_depth, currdepth)
-		#max_nodes_expanded = max_nodes_expanded + 1
+		stored_nodes = max(stored_nodes, len(frontier))
+		max_nodes_expanded = max_nodes_expanded + 1
 		f = current.cost + abs(current.current_position[0] - current.goal[0]) + abs(current.current_position[1] - current.goal[1])
 				
 		if f > limit:
@@ -591,22 +601,24 @@ def dls(currstate, arena, limit):
 
 		if current.current_position == current.goal:
 			cost = current.cost
-			dls_path = []
+			#dls_path = []
 			while current:
 				#dls_path.append(currstate.arena[current.current_position[0]][current.current_position[1]])
 				row, column = current.current_position
 				if arena[row][column] != "g" and arena[row][column] != "s":
 					arena[row][column] = '*'
 				current = parent[current]
-			return arena, cost, max_nodes_expanded, max_depth
+			return arena, cost, max_nodes_expanded, stored_nodes, max_depth
 		
 		for valid_move in reversed(current.expand()):
 			if valid_move not in parent:
 				frontier.append(valid_move)
 				parent[valid_move] = current
 				depth[valid_move] = currdepth + 1
+				#max_nodes_expanded = max_nodes_expanded + 1
 		
-	return [], min_cost, max_nodes_expanded, max_depth
+		
+	return [], min_cost, max_nodes_expanded, stored_nodes, max_depth
 			
 		
 		
@@ -665,4 +677,3 @@ if __name__ == "__main__":
 		print("Max Search Depth: " + str(ida_max_search_depth))
 		print("Time: " + str(ida_time) + "s")
 		print("RAM Usage: " + str(ida_ram) + "kB\n")
-

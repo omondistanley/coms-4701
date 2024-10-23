@@ -21,6 +21,7 @@ Empty inequalities in the board are represented as '-'
 
 """
 import sys
+import numpy as np
 
 #======================================================================#
 #*#*#*# Optional: Import any allowed libraries you may need here #*#*#*#
@@ -31,7 +32,7 @@ import sys
 #=================================#
 
 ROW = "ABCDEFGHI"
-COL = "123456789"
+COL = "123456789" #a cell is represented as row col -> A1
 
 class Board:
     '''
@@ -48,6 +49,28 @@ class Board:
             raise Exception("Invalid configuration string length")
         
         return int(n)
+        
+    def get_config_str(self):
+        '''
+        Returns the configuration string
+        '''
+        return self.config_str
+        
+    def get_config(self):
+        '''
+        Returns the configuration dictionary
+        '''
+        return self.config
+        
+    def get_variables(self):
+        '''
+        Returns a list containing the names of all variables in the futoshiki board
+        '''
+        variables = []
+        for i in range(0, self.n):
+            for j in range(0, self.n):
+                variables.append(ROW[i] + COL[j])
+        return variables
     
     def convert_string_to_dict(self, config_string):
         '''
@@ -56,7 +79,7 @@ class Board:
         '''
         config_dict = {}
         
-        for i in range(0, self.n):
+        for i in range(0, self.n): #n is the length for the side of the board
             for j in range(0, self.n):
                 cur = config_string[0]
                 config_string = config_string[1:]
@@ -150,6 +173,22 @@ class Board:
                         output += cur + '   '
             output += '\n'
         return output
+        
+    def reset_domains(self):
+        '''
+        Resets the domains of the board assuming no enforcement of constraints
+        '''
+        domains = {}
+        variables = self.get_variables()
+        for var in variables:
+            if(self.config[var] == 0):
+                domains[var] = [i for i in range(1,self.n+1)]
+            else:
+                domains[var] = [self.config[var]]
+                
+        self.domains = domains
+                
+        return domains
         
     def forward_checking(self, reassigned_variables):
         '''

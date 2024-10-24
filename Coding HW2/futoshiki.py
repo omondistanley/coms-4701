@@ -214,7 +214,55 @@ class Board:
                 if current in self.domains[next_pos]:
                     self.domains[next_pos].remove(variable)
         
+        #implementing row constraints
+        for rows in ROW[:self.n]:
+            next_pos = row + column
+            if rows != row:
+                print("row")
+                print(row)
+                if current in self.domains[next_pos]:
+                    self.domains[next_pos].remove(variable)
         
+        #implementing checks for the inequality symbols.
+        
+        #Horizontal inequalities!
+        if column != COL[self.n -1]: #out of bounds condition
+            constrvalue = variable + '*'
+            symbol = self.config.get(constrvalue, '-') #if the constraint value is 
+            #present if not use the - as the default inequality symbol
+
+            #checking for the symbols.
+            if symbol != '-':
+                #find the next column val from the reassigned vars
+                next_pos = row + COL[COL.index(coln) + 1] 
+                if symbol == '>':
+                    validvals = []
+                    for val in self.domains[next_pos]:
+                        if val < current:
+                            validvals.append(val)
+                            print(validvals)
+                    self.domains[next_pos] = validvals
+
+        if column != COL[0]:
+                constrvalue =  next_pos = row + COL[COL.index(coln) - 1] + '*'
+                symbol = self.config.get(row + COL[COL.index(coln) - 1])
+                if symbol != '-':
+                    next_pos = row +COL[COL.index(coln) - 1]   
+                elif symbol == '<':
+                    validvals = []
+                    for val in self.domains[next_pos]:
+                        if val > current:
+                            validvals.append(val)
+                    self.domains[next_pos] = validvals
+
+        #vertical inequalities
+
+
+
+
+
+
+
                 
             
 

@@ -195,10 +195,32 @@ class Board:
         Runs the forward checking algorithm to restrict the domains of all variables based on the values
         of reassigned variables
         '''
+        print(reassigned_variables)
         #======================================================================#
 		#*#*#*# TODO: Write your implementation of forward checking here #*#*#*#
 		#======================================================================#
+        for variable in reassigned_variables:
+
+            #print(variable)
+            row = variable[0]
+            column = variable[1]
+            current = self.config[variable]
+        #implementing row constraints 
+        for coln in COL[:self.n]:#checking for all in the size of the board
+            next_pos = row + coln
+            if coln != column:
+                print("coln")
+                print(coln)
+                if current in self.domains[next_pos]:
+                    self.domains[next_pos].remove(variable)
+        
+        
+                
             
+
+
+
+
         #=================================#
 		#*#*#*# Your code ends here #*#*#*#
 		#=================================#

@@ -190,74 +190,87 @@ class Board:
         self.domains = domains
                 
         return domains
-        
+
     def forward_checking(self, reassigned_variables):
-    for variable in reassigned_variables:
-        current = self.config[variable]
-        if current == 0:
-            continue
-        row = variable[0]
-        column = variable[1]
+        #Runs the forward checking algorithm to restrict the domains of all variables based on the values
+        #of reassigned variables
+        #print(reassigned_variables)
+        #======================================================================#
+		#*#*#*# TODO: Write your implementation of forward checking here #*#*#*#
+		#======================================================================#
+        for variable in reassigned_variables:
+            current = self.config[variable]
+            if current == 0:
+                continue
+            row = variable[0]
+            column = variable[1]
+            #implementing row constraints 
+            for coln in COL[:self.n]:#checking for all in the size of the board
+                #print("coln")
+                #print(coln)
+                next_pos = row + coln
+                if variable != next_pos and current in self.domains[next_pos]:
+                    self.domains[next_pos].remove(current)
         
-        # Implement row constraints
-        for coln in COL[:self.n]:
-            next_pos = row + coln
-            if variable != next_pos and current in self.domains[next_pos]:
-                self.domains[next_pos].remove(current)
+            #implementing column constraints
+            for rows in ROW[:self.n]:
+                # print("row")
+                #print(row)
+                next_pos = rows + column
+                if variable != next_pos and current in self.domains[next_pos]:
+                    self.domains[next_pos].remove(current)
         
-        # Implement column constraints
-        for rown in ROW[:self.n]:
-            next_pos = rown + column
-            if variable != next_pos and current in self.domains[next_pos]:
-                self.domains[next_pos].remove(current)
+            #implementing checks for the inequality symbols.
         
-        # Implement horizontal inequalities to the right
-        if column != COL[self.n -1]:
-            constrvalue = variable + '*'
-            symbol = self.config.get(constrvalue, '-')
-            if symbol != '-':
-                next_col = COL[COL.index(column) + 1]
-                next_pos = row + next_col
-                if symbol == '>':
-                    self.domains[next_pos] = [v for v in self.domains[next_pos] if v < current]
-                elif symbol == '<':
-                    self.domains[next_pos] = [v for v in self.domains[next_pos] if v > current]
-        
-        # Implement horizontal inequalities to the left
-        if column != COL[0]:
-            prev_col = COL[COL.index(column) - 1]
-            constrvalue = row + prev_col + '*'
-            symbol = self.config.get(constrvalue, '-')
-            if symbol != '-':
-                prev_pos = row + prev_col
-                if symbol == '>':
-                    self.domains[prev_pos] = [v for v in self.domains[prev_pos] if v > current]
-                elif symbol == '<':
-                    self.domains[prev_pos] = [v for v in self.domains[prev_pos] if v < current]
-        
-        # Implement vertical inequalities downward
-        if row != ROW[self.n -1]:
-            constrvalue = row + '*' + column
-            symbol = self.config.get(constrvalue, '-')
-            if symbol != '-':
-                next_row = ROW[ROW.index(row) + 1]
-                next_pos = next_row + column
-                if symbol == '>':
-                    self.domains[next_pos] = [v for v in self.domains[next_pos] if v < current]
-                elif symbol == '<':
-                    self.domains[next_pos] = [v for v in self.domains[next_pos] if v > current]
-        
-        # Implement vertical inequalities upward
-        if row != ROW[0]:
-            prev_row = ROW[ROW.index(row) - 1]
-            constrvalue = prev_row + '*' + column
-            symbol = self.config.get(constrvalue, '-')
-            if symbol != '-':
-                prev_pos = prev_row + column
-                if symbol == '>':
-                    self.domains[prev_pos] = [v for v in self.domains[prev_pos] if v > current]
-                elif symbol == '<':
-                    self.domains[prev_pos] = [v for v in self.domains[prev_pos] if v < current]
+            #Horizontal inequalities!
+            if column != COL[self.n -1]: #out of bounds condition
+                constrvalue = variable + '*'
+                symbol = self.config.get(constrvalue, '-') #if the constraint value is 
+                #present if not use the - as the default inequality symbol
+                #checking for the symbols.
+                if symbol != '-':
+                    #find the next column val from the reassigned vars
+                    next_pos = row + COL[COL.index(column) + 1] 
+                    if symbol == '>':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var < current]
+                    elif symbol == '<':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var > current]
+
+            if column != COL[0]:
+                prevcol = COL[COL.index(column) - 1]
+                constrvalue = row + prevcol + '*'
+                symbol = self.config.get(constrvalue, '-')
+                if symbol != '-':
+                    next_pos = row + prevcol    
+                    if symbol == '>':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var > current]
+                    elif symbol == '<':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var < current]
+
+            #vertical inequalities
+            if row != ROW[self.n -1]: #out of bounds condition
+                constrvalue = row + '*' + column
+                symbol = self.config.get(constrvalue, '-') #if the constraint value is 
+                #present if not use the - as the default inequality symbol
+                #checking for the symbols.
+                if symbol != '-':
+                    #find the next column val from the reassigned vars
+                    next_pos =  ROW[ROW.index(row) + 1] + column 
+                    if symbol == '>':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var < current]
+                    elif symbol == '<':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var > current]
+
+
+            if row != ROW[0]:
+                constrvalue =  ROW[ROW.index(row) - 1] + '*' + column
+                symbol = self.config.get(constrvalue, '-')
+                if symbol != '-':
+                    next_pos = ROW[ROW.index(row) - 1] + column   
+                    if symbol == '>':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var > current]
+                    elif symbol == '<':
+                        self.domains[next_pos] = [var for var in self.domains[next_pos] if var < current]
 
         #=================================#
 		#*#*#*# Your code ends here #*#*#*#
@@ -274,17 +287,7 @@ class Board:
 #================================================================================#
 #*#*#*# Optional: You may write helper functions in this space if required #*#*#*#
 #================================================================================#        
-def board_configuration(board):
-    config = ''
-    for i in range(0, board.n):
-        for j in range(0, board.n):
-            config = config + str(board.config[ROW[i] + COL[j]])
-            if j != board.n - 1:
-                config = config + board.config[ROW[i] + COL[j] + '*']
-        if i != board.n -1:
-            for j in range(0, board.n):
-                config = config + board.config[ROW[i] + '*' + COL[j]]
-    return config
+
 #=================================#
 #*#*#*# Your code ends here #*#*#*#
 #=================================#
@@ -299,7 +302,6 @@ def backtracking(board):
 	#*#*#*# TODO: Write your backtracking algorithm here #*#*#*#
 	#==========================================================#
     def unassigned_vars():
-       # print('unassigned')
         variables = [] #getting all the unsigned variables.
         for val in board.get_variables():
             if board.config[val] == 0: 
@@ -314,22 +316,23 @@ def backtracking(board):
         for val in variables:
             if len(board.domains[val]) == mindomainlen:
                 return val
-            
+        
+
     def consistencycheck(variable, values):
         #row and column uniqueness
         row = variable[0]
         column = variable[1]
                 
-       # print(row)
+        #print(row)
         #print(column)
         
-        for coln in COL[:board.n]:#checking for all in the size of the board
+        for coln in COL[:board.n]:
             next_pos = row + coln
             if next_pos != variable and board.config[next_pos] == values:
                 return False
         
-        for row in ROW[:board.n]:
-            next_pos = row +  column
+        for rows in ROW[:board.n]:
+            next_pos = rows + column
             if next_pos != variable and board.config[next_pos] == values:
                 return False
 
@@ -351,25 +354,27 @@ def backtracking(board):
                             return False
 
         if column != COL[0]: #out of bounds condition
-            constrvalue = row + COL[COL.index(column) - 1] + '*'
+            prev_col = COL[COL.index(column) - 1]
+            constrvalue = row + prev_col + '*'
             symbol = board.config.get(constrvalue, '-') #if the constraint value is 
             #present if not use the - as the default inequality symbol
-
             #checking for the symbols.
             if symbol != '-':
                 #find the next column val from the reassigned vars
-                next_pos = row + COL[COL.index(column) - 1] 
-                nextval = board.config[next_pos]
+                prev_pos = row + prev_col 
+                nextval = board.config[prev_pos]
                 if nextval != 0:
-                    if symbol == '>' and  values >= nextval:
-                            return False
+                    if symbol == '>' and values >= nextval:
+                        print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
+                        return False
                     elif symbol == '<' and values <= nextval:
-                            return False
+                        print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
+                        return False
 
         #vertical
         #vertical inequalities
         if row != ROW[board.n -1]: #out of bounds condition
-            constrvalue = variable + '*' + column
+            constrvalue = row + '*' + column
             symbol = board.config.get(constrvalue, '-') #if the constraint value is 
             #present if not use the - as the default inequality symbol
             #checking for the symbols.
@@ -378,15 +383,15 @@ def backtracking(board):
                 next_pos = ROW[ROW.index(row) + 1] + column
                 nextval = board.config[next_pos]
                 if nextval != 0:
-                    if symbol == '>':
-                        if values < nextval:
-                            return False
-                    elif symbol == '<':
-                        if values > nextval:
-                            return False
+                    if symbol == '>' and values <= nextval:
+                        print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
+                        return False
+                    elif symbol == '<' and values >= nextval:
+                        print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
+                        return False
 
         if row != ROW[0]: #out of bounds condition
-            constrvalue = ROW[ROW.index(row) - 1] + '*' + column
+            constrvalue = ROW[ROW.index(row) - 1]  + '*' + column
             symbol = board.config.get(constrvalue, '-') #if the constraint value is 
             #present if not use the - as the default inequality symbol
             #checking for the symbols.
@@ -395,11 +400,11 @@ def backtracking(board):
                 next_pos = ROW[ROW.index(row) - 1] + column
                 nextval = board.config[next_pos]
                 if nextval != 0:
-                    if symbol == '>':
-                        if values < nextval:
+                    if symbol == '>' and values >= nextval:
+                            print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
                             return False
-                    elif symbol == '<':
-                        if values > nextval:
+                    elif symbol == '<' and values <= nextval:
+                            print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
                             return False
         
         return True
@@ -409,10 +414,10 @@ def backtracking(board):
         if all(board.config[val] != 0 for val in board.get_variables()):
             return True
 
-        #recursive case
         curr_var = unassigned_vars()
-        
+       
         vals = board.domains[curr_var]
+
         for val in vals:
             if consistencycheck(curr_var, val):
                 board.config[curr_var] = val
@@ -420,10 +425,10 @@ def backtracking(board):
                 board.domains[curr_var] = [val]
                 board.forward_checking([curr_var])
 
-                if all(len(board.domains[variables]) > 0 for variables in board.get_variables()):
-                    workedboard = backtrack()
-                    if workedboard:
-                        return True                    
+                if all(len(board.domains[var]) > 0 for var in board.get_variables()):
+                    solveboard = backtrack()
+                    if solveboard:
+                        return True
                 #unassigned vals and restore the domain before change
                 board.config[curr_var] = 0
                 board.domains = domain_tracked
@@ -433,7 +438,6 @@ def backtracking(board):
         return board
     else:
         return None
-
 
     #return None # Replace with return values
     #=================================#
@@ -449,11 +453,11 @@ def solve_board(board):
 	#*#*#*# TODO: Call your backtracking algorithm and time it #*#*#*#
 	#================================================================#
     start = time.time()
-   # print(start)
+   # print(start)  
     soln  = backtracking(board)
     endtime = time.time()
     runtime = endtime - start
-    #print(runtime)
+    print(runtime)
     return soln, runtime # Replace with return values
     #=================================#
 	#*#*#*# Your code ends here #*#*#*#

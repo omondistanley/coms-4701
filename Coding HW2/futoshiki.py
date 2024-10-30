@@ -297,7 +297,7 @@ def backtracking(board):
     Performs the backtracking algorithm to solve the board
     Returns only a solved board
     '''
-    print('backtracking')
+    #print('backtracking')
     #==========================================================#
 	#*#*#*# TODO: Write your backtracking algorithm here #*#*#*#
 	#==========================================================#
@@ -401,10 +401,10 @@ def backtracking(board):
                 nextval = board.config[next_pos]
                 if nextval != 0:
                     if symbol == '>' and values >= nextval:
-                            print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
+                            #print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
                             return False
                     elif symbol == '<' and values <= nextval:
-                            print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
+                            #print(f"Consistency check failed: {variable} ({values}) < {next_pos} ({nextval})")
                             return False
         
         return True
@@ -457,7 +457,7 @@ def solve_board(board):
     soln  = backtracking(board)
     endtime = time.time()
     runtime = endtime - start
-    print(runtime)
+    #print(runtime)
     return soln, runtime # Replace with return values
     #=================================#
 	#*#*#*# Your code ends here #*#*#*#

@@ -4,7 +4,7 @@ directionVectors = (UP_VEC, DOWN_VEC, LEFT_VEC, RIGHT_VEC) = ((-1, 0), (1, 0), (
 vecIndex = [UP, DOWN, LEFT, RIGHT] = range(4)
 
 class Grid:
-    def __init__(self, size: int=4):
+    def __init__(self, size: int=4): #initialize the gid for use
         self.size = size
         self.map  = [[0] * self.size for i in range(self.size)]
 
@@ -15,14 +15,14 @@ class Grid:
 
         return gridCopy
 
-    def canInsert(self, pos: tuple) -> bool:
+    def canInsert(self, pos: tuple) -> bool: #checks for cells that are empty??
         return self.getCellValue(pos) == 0
 
     def insertTile(self, pos: tuple, value: int) -> None:
         if self.canInsert(pos):
             self.setCellValue(pos, value)
 
-    def crossBound(self, pos: tuple) -> bool:
+    def crossBound(self, pos: tuple) -> bool: #operations are only to be done within the valid board
         """ Returns True if position is within the board"""
         return 0 <= pos[0] < self.size and 0 <= pos[1] < self.size
 
@@ -112,7 +112,8 @@ class Grid:
         return moved
 
     def merge(self, cells:list) -> None:
-        """ Merge tiles """
+        """ Merge tiles """ #in short, if the two values are equal, add them up then delete one ofhe values in the cells,
+                            #kinda removes adjacent dups but by adding their vals up together if theyre neighbors.
         if len(cells) <= 1: return cells
 
         i = 0

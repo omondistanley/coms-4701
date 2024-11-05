@@ -26,7 +26,7 @@ maxTime   = timeLimit + allowance
 
 class GameManager:
     def __init__(self, size=4, intelligentAgent=None, computerAI=None, displayer=None):
-        self.grid = Grid(size)
+        self.grid = Grid(size)#initialize grid
         self.possibleNewTiles = [2, 4]
         self.probability = defaultProbability
         self.initTiles   = defaultInitialTiles
@@ -34,12 +34,12 @@ class GameManager:
 
         # Initialize the AI players
         self.computerAI = computerAI or ComputerAI()
-        self.intelligentAgent   = intelligentAgent   or IntelligentAgent()
+        self.intelligentAgent   = intelligentAgent   or IntelligentAgent() #to implement
         self.displayer  = displayer  or Displayer()
 
     def updateAlarm(self) -> None:
         """ Checks if move exceeded the time limit and updates the alarm """
-        if time.process_time() - self.prevTime > maxTime:
+        if time.process_time() - self.prevTime > maxTime: #remember, allowed 0.2s
             self.over = True
         
         self.prevTime = time.process_time()

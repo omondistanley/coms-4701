@@ -22,11 +22,11 @@ class IntelligentAgent(BaseAI):
     def getMove(self, grid):
         #moveset = grid.getAvailableMoves()
         #return random.choice(moveset)[0]
-        nextMove = None
+        nextMove = random.choice(movedirs)
         value  = float('-inf')
         for move in grid.getAvailableMoves():
             nextstate = move[1]
-            moveval = self.expectminimax(nextstate, depth=2, agent=True)
+            moveval = self.expectminimax(nextstate, depth=2, alpha=float('-inf'), beta=float('inf'),  agent=True)
             if moveval > value:
                 nextMove = move[0]
                 value = moveval
@@ -39,16 +39,19 @@ class IntelligentAgent(BaseAI):
     # cuts off before the time constraint exceeds 0.2 s [same as eval functions for non-terminal pos]
     #4. Consider using heuristic weights to make work easier, cause might use >1 herusitic functions. 
 
-    def expectminimax(self, grid, depth, agent):
+    def expectminimax(self, grid, depth, alpha, beta, agent):
         if depth == 0 or not grid.getAvailableCells(): #handling the terminal nodes
-            return 0
+            return self.heuristicValue(grid)
         
         if agent:
             bestVal = float('-inf')
             for move in grid.getAvailableMoves():
                 nextgrid = move[1]
-                currval = self.expectminimax(nextgrid, depth-1, not agent)
+                currval = self.expectminimax(nextgrid, depth-1, alpha, beta, not agent)
                 bestVal = max(bestVal, currval)
+                alpha = max(alpha, bestVal)
+                if beta <= alpha:
+                    break
             return bestVal
         else:
             bestVal = 0
@@ -56,7 +59,17 @@ class IntelligentAgent(BaseAI):
                 for prob, tileval in [(0.9 , 2), (0.1 , 4)]:
                     gridCopy = grid.clone()
                     gridCopy.setCellValue(cell, tileval)
-                    currval = self.expectminimax(gridCopy, depth -1, agent)
+                    currval = self.expectminimax(gridCopy, depth -1, alpha, beta, agent)
                     bestVal = bestVal + (prob * currval)
+                    bestVal = min(beta, bestVal)
+                    if bestVal <= alpha:
+                        break
             return bestVal
+        
+    #Working of heuristics
+    def heuristicValue(self, grid):
+        empty = len(grid.getAvailableCells())
+        maxCellVal = max(cell for row in grid.map for cell in row)
+        heursitic = maxCellVal + empty * 2
 
+        return heursitic

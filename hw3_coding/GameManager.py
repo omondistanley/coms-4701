@@ -109,6 +109,15 @@ class GameManager:
 
         return self.grid.getMaxTile()
 
+    '''def main():
+        intelligentAgent = IntelligentAgent()
+        computerAI  = ComputerAI()
+        displayer   = Displayer()
+        gameManager = GameManager(4, intelligentAgent, computerAI, displayer)
+
+        maxTile     = gameManager.start()
+        print(maxTile)'''
+
 def main():
     intelligentAgent = IntelligentAgent()
     computerAI  = ComputerAI()
@@ -117,6 +126,12 @@ def main():
 
     maxTile     = gameManager.start()
     print(maxTile)
+
+    out_filename = 'output.txt'
+    # Open the file in append mode
+    with open(out_filename, "a") as outfile:
+        outfile.write(f"{maxTile}\n")
+
 
 if __name__ == '__main__':
     main()

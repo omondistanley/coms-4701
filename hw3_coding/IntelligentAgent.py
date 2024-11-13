@@ -2,11 +2,13 @@
 from BaseAI import BaseAI
 import random
 import time
+import math
 
 #-------------------------------------------------------------------------#
 # Name:STANLEY OMONDI
 # UNI: soo2117
 # https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2013-2014-genap/Makalah2014/MakalahIF2211-2014-037.pdf
+# https://theresamigler.com/wp-content/uploads/2020/03/2048.pdf
 #-------------------------------------------------------------------------#
 
 
@@ -24,12 +26,16 @@ class IntelligentAgent(BaseAI):
         #return random.choice(moveset)[0]
         nextMove = random.choice(movedirs)
         value  = float('-inf')
+        time_limit = 0.2 
+        starttime = time.process_time()
         for move in grid.getAvailableMoves():
             nextstate = move[1]
             moveval = self.expectminimax(nextstate, depth=2, alpha=float('-inf'), beta=float('inf'),  agent=True)
             if moveval > value:
                 nextMove = move[0]
                 value = moveval
+                if time.process_time() - starttime > time_limit:
+                    return nextMove
         return nextMove
     
     '''In implementing the playerAi to determine moves consider: '''
@@ -54,22 +60,58 @@ class IntelligentAgent(BaseAI):
                     break
             return bestVal
         else:
-            bestVal = 0
+            bestVal = float('inf')
             for cell in grid.getAvailableCells():
+                chanceval = 0
                 for prob, tileval in [(0.9 , 2), (0.1 , 4)]:
                     gridCopy = grid.clone()
                     gridCopy.setCellValue(cell, tileval)
                     currval = self.expectminimax(gridCopy, depth -1, alpha, beta, agent)
-                    bestVal = bestVal + (prob * currval)
-                    bestVal = min(beta, bestVal)
-                    if bestVal <= alpha:
+                    chanceval = chanceval + (prob * currval)
+                    chanceval = chanceval / 2
+                    bestVal = min(bestVal, chanceval)
+                    beta = min(beta, chanceval)
+                    if beta <= alpha:
                         break
             return bestVal
-        
+    
+
     #Working of heuristics
     def heuristicValue(self, grid):
         empty = len(grid.getAvailableCells())
         maxCellVal = max(cell for row in grid.map for cell in row)
-        heursitic = maxCellVal + empty * 2
 
+        heursitic = math.log2(maxCellVal) + empty *2 + self.monotocity(grid) 
+        
         return heursitic
+        #calculationg the monotonistic heuristic for the grid, checks if neighbors are in increasing 
+        #or decreasing order across rows and columns.
+        
+    def monotocity(self, grid):    
+        monotonicity_score = 0
+        for row in range(0, 3):
+            for col in range(0, 2):
+                if grid.getCellValue((row, col)) >= grid.getCellValue((row, col + 1)):
+                    monotonicity_score = monotonicity_score + 1
+            
+        for col in range(0,3):
+            for row in range(0,2):
+                if grid.getCellValue((row, col)) >= grid.getCellValue((row + 1, col)):
+                    monotonicity_score = monotonicity_score + 1
+            
+        return monotonicity_score
+    
+
+    def smoothness(self,grid):
+        smoothness_score = 0
+
+        for row in range(4):
+            for col in range(3):
+                smoothness_score = smoothness_score + abs((grid.map[row][col] - grid.map[row][col + 1]))
+
+        for col in range(4):
+            for row in range(3):
+                smoothness_score = smoothness_score + abs(grid.map[row][col] - grid.map[row + 1][col])
+        return -smoothness_score
+
+    

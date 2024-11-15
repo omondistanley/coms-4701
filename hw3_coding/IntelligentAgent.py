@@ -81,7 +81,7 @@ class IntelligentAgent(BaseAI):
         empty = len(grid.getAvailableCells())
         maxCellVal = max(cell for row in grid.map for cell in row)
 
-        heursitic = math.log2(maxCellVal) + empty *2 + self.monotocity(grid) 
+        heursitic = math.log2(maxCellVal) + empty *2 + self.monotocity(grid) + self.smoothness(grid)
         
         return heursitic
         #calculationg the monotonistic heuristic for the grid, checks if neighbors are in increasing 
@@ -102,16 +102,22 @@ class IntelligentAgent(BaseAI):
         return monotonicity_score
     
 
-    def smoothness(self,grid):
+    def smoothness(self, grid):
         smoothness_score = 0
-
         for row in range(4):
-            for col in range(3):
-                smoothness_score = smoothness_score + abs((grid.map[row][col] - grid.map[row][col + 1]))
+            for col in range(4):
+                curval = grid.map[row][col] 
+                if col < 3:
+                    nextval = grid.map[row][col + 1]
+                    if nextval != 0 and curval != 0:
+                        smoothness_score = smoothness_score - abs(math.log2(curval) - math.log2(nextval)) 
 
-        for col in range(4):
-            for row in range(3):
-                smoothness_score = smoothness_score + abs(grid.map[row][col] - grid.map[row + 1][col])
-        return -smoothness_score
+                if row < 3:
+                    nextval = grid.map[row + 1][col]
+                    if nextval != 0 and curval != 0:
+                        smoothness_score = smoothness_score - abs(math.log2(curval) - math.log2(nextval)) 
+ 
+        return smoothness_score
+
 
     

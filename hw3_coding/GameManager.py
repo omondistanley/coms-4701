@@ -127,7 +127,7 @@ def main():
     maxTile     = gameManager.start()
     print(maxTile)
 
-    out_filename = 'output1.txt'
+    out_filename = 'output2.txt'
     # Open the file in append mode
     with open(out_filename, "a") as outfile:
         outfile.write(f"{maxTile}\n")

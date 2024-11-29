@@ -22,20 +22,32 @@ class Classifiers():
         feature = data.drop(columns=['label']).values
         label = data['label'].values
  
-        row_train, row_test, col_train, col_test = train_test_split(feature, label, test_size= 0.4, random_state= 0)
+        row_train, row_test, col_train, col_test = train_test_split(feature, label, test_size=0.4, random_state=0)
 
-        self.training_data = row_train
-        self.training_labels = row_test
-        self.testing_data = col_train
-        self.testing_labels = col_test
+        self.training_data = row_train  # Features for training
+        self.training_labels = col_train  # Labels for training
+        self.testing_data = row_test  # Features for testing
+        self.testing_labels = col_test  # Labels for testing
+
         self.outputs = []
     
     def test_clf(self, clf, classifier_name=''):
         # TODO: Fit the classifier and extrach the best score, training score and parameters
-        pass
-        # Use the following line to plot the results
-        # self.plot(self.testing_data, clf.predict(self.testing_data),model=clf,classifier_name=name)
+        clf.fit(self.training_data, self.training_labels)
 
+        params = clf.best_params_
+        accuracy = clf.best_score_
+
+        best_neighbor = clf.best_estimator_
+        best_neighbor.fit(self.training_data, self.training_labels)
+
+        acc = best_neighbor.score(self.testing_data, self.testing_labels)
+
+        name = classifier_name
+        # Use the following line to plot the results
+        self.plot(self.testing_data, clf.predict(self.testing_data),model=clf,classifier_name=name)
+        return params, accuracy, acc
+    
     def classifyNearestNeighbors(self):
         # TODO: Write code to run a Nearest Neighbors classifier
         param_grid = {
@@ -45,17 +57,21 @@ class Classifiers():
         
         nneighbor = KNeighborsClassifier()
         grid = GridSearchCV(nneighbor, param_grid, cv = 5)
-        grid.fit(self.training_data, self.testing_data)
+        '''grid.fit(self.training_data, self.training_labels)
 
         params = grid.best_params_
         accuracy = grid.best_score_
 
         best_neighbor = grid.best_estimator_
-        best_neighbor.fit(self.training_data, self.testing_data)
+        best_neighbor.fit(self.training_data, self.training_labels)
 
-        acc = best_neighbor.score(self.training_labels, self.testing_labels)
-
-        return params, accuracy, acc
+        acc = best_neighbor.score(self.testing_data, self.testing_labels)
+        
+        print(params)
+        print(accuracy)
+        print(acc)'''
+        #return params, accuracy, acc
+        return grid
 
         
     def classifyLogisticRegression(self):
@@ -66,15 +82,19 @@ class Classifiers():
 
         logisticModel = LogisticRegression()
         grid = GridSearchCV(logisticModel, param_grid, cv=5)
-        grid.fit(self.training_data, self.testing_data)
+        '''grid.fit(self.training_data, self.training_labels)
 
         modelScore = grid.best_estimator_
         params = grid.best_params_
         accuracy = grid.best_score_
 
-        acc = modelScore.score(self.training_labels, self.testing_labels)
+        acc = modelScore.score(self.testing_data, self.testing_labels)
 
-        return params, accuracy, acc
+        print(params)
+        print(accuracy)
+        print(acc)'''
+        #return params, accuracy, acc
+        return grid
     
     def classifyDecisionTree(self):
         # TODO: Write code to run a Logistic Regression classifier
@@ -84,15 +104,19 @@ class Classifiers():
         }
         dtModel = DecisionTreeClassifier()
         grid = GridSearchCV(dtModel, param_grid, cv=5)
-        grid.fit(self.training_data, self.testing_data)
+        '''grid.fit(self.training_data, self.training_labels)
 
         dtScore = grid.best_estimator_
         params = grid.best_params_
         accuracy = grid.best_score_
 
-        acc = dtScore.score(self.training_labels, self.testing_labels)
+        acc = dtScore.score(self.testing_data, self.testing_labels)
 
-        return params, accuracy, acc
+        print(params)
+        print(accuracy)
+        print(acc)'''
+        #return params, accuracy, acc
+        return grid
 
     def classifyRandomForest(self):
         # TODO: Write code to run a Random Forest classifier
@@ -103,15 +127,19 @@ class Classifiers():
         }
         rfModel = RandomForestClassifier()
         grid = GridSearchCV(rfModel, param_grid, cv=5)
-        grid.fit(self.training_data, self.testing_data)
+        '''grid.fit(self.training_data, self.training_labels)
 
         rfScore = grid.best_estimator_
         params = grid.best_params_
         accuracy = grid.best_score_
 
-        acc = rfScore.score(self.training_labels, self.testing_labels)
+        acc = rfScore.score(self.testing_data, self.testing_labels)
 
-        return params, accuracy, acc
+        print(params)
+        print(accuracy)
+        print(acc)'''
+        #return params, accuracy, acc
+        return grid
     
     def classifyAdaBoost(self):
         # TODO: Write code to run a AdaBoost classifier
@@ -121,15 +149,19 @@ class Classifiers():
 
         adaboostModel = AdaBoostClassifier(algorithm='SAMME')
         grid = GridSearchCV(adaboostModel, param_grid, cv=5)
-        grid.fit(self.training_data, self.testing_data)
+        '''grid.fit(self.training_data, self.training_labels)
 
         adaboostScore = grid.best_estimator_
         params = grid.best_params_
         accuracy = grid.best_score_
 
-        acc = adaboostScore.score(self.training_labels, self.testing_labels)
+        acc = adaboostScore.score(self.testing_data, self.testing_labels)
 
-        return params, accuracy, acc
+        print(params)
+        print(accuracy)
+        print(acc)'''
+        #return params, accuracy, acc
+        return grid
     
     def plot(self, X, Y, model,classifier_name = ''):
         X1 = X[:, 0]
@@ -162,36 +194,22 @@ if __name__ == "__main__":
     df = pd.read_csv('input.csv')
     models = Classifiers(df)
     print('Classifying with NN...')
-    params, acc, acc2  = models.classifyNearestNeighbors()
-    print(params)
-    print(acc)
-    print(acc2)
     models.classifyNearestNeighbors()
+    models.test_clf(models.classifyNearestNeighbors(), 'Nearest Neighbor')
     print('Classifying with Logistic Regression...')
-    params, acc, acc2  = models.classifyLogisticRegression()
-    print(params)
-    print(acc)
-    print(acc2)
     models.classifyLogisticRegression()
+    models.test_clf(models.classifyLogisticRegression(), 'Logistic Regression')
     print('Classifying with Decision Tree...')
-    params, acc, acc2  = models.classifyDecisionTree()
-    print(params)
-    print(acc)
-    print(acc2)
     models.classifyDecisionTree()
+    models.test_clf(models.classifyDecisionTree(), 'Decision Tree')
     print('Classifying with Random Forest...')
-    params, acc, acc2  = models.classifyRandomForest()
-    print(params)
-    print(acc)
-    print(acc2)
     models.classifyRandomForest()
+    models.test_clf(models.classifyRandomForest(), 'Random Forest')
     print('Classifying with AdaBoost...')
-    params, acc, acc2  = models.classifyAdaBoost()
-    print(params)
-    print(acc)
-    print(acc2)
     models.classifyAdaBoost()
-
+    models.test_clf(models.classifyAdaBoost(), 'Adaboost')
+    #print('Testing test_clf for classifyNearestNeightbors()')
+    
     with open("output.csv", "w") as f:
         print('Name, Best Training Score, Testing Score',file=f)
         for line in models.outputs:

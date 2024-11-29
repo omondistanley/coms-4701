@@ -9,7 +9,7 @@ line_styles = {0: 'ro-', 1: 'b^-', 2: 'gs-', 3: 'cv-'}
 
 # Plot dmax/dmin ratio
 # TODO: fill in valid test numbers
-sample_size = [100, 200, 300, 400]
+sample_size = np.random.randint(100, 1000, 4)
 for idx, num_samples in enumerate(sample_size):
     # TODO: Fill in a valid feature range
     feature_range = range(1,101)
@@ -17,7 +17,7 @@ for idx, num_samples in enumerate(sample_size):
     for num_features in feature_range:
         # TODO: Generate synthetic data using make_classification
         num_info = max(1, num_features // 2 ) #flooring to get integer, n_informative on takes integers
-        numOfClasses = min(2, max(2, num_features / 10))
+        numOfClasses = min(10, max(2, num_features // 10))
         X,Y  = make_classification(
             n_samples= num_samples,
             n_features= num_features,

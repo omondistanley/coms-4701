@@ -42,8 +42,9 @@ class Classifiers():
         best_neighbor.fit(self.training_data, self.training_labels)
 
         acc = best_neighbor.score(self.testing_data, self.testing_labels)
-
+        
         name = classifier_name
+        self.outputs.append(f"{name}, {accuracy}, {acc}")
         # Use the following line to plot the results
         self.plot(self.testing_data, clf.predict(self.testing_data),model=clf,classifier_name=name)
         return params, accuracy, acc

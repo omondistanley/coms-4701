@@ -2,5 +2,5 @@ Name, Best Training Score, Testing Score
 Nearest Neighbor, 0.9233333333333332, 0.93
 Logistic Regression, 0.6166666666666667, 0.545
 Decision Tree, 0.97, 0.98
-Random Forest, 0.9266666666666665, 0.91
+Random Forest, 0.9199999999999999, 0.91
 Adaboost, 0.6599999999999999, 0.585
